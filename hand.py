@@ -1,10 +1,11 @@
-from mouse import click_func
+from functions.mouse import click_func
 from config import cfg
 from math_functions import calculate_distance, should_calculate_angle, calculate_pointer_angle
 from camera import draw_corner_labels, to_landmark_proto, extract_lists
 from scroll import update_scrolling
-from mouse import update_mouse_movement
+from functions.mouse import update_mouse_movement
 import traceback
+from recognitionpredefined_gestures import get_gesture_name
 
 def maybe_click(top_gesture, hand_label):
     if not top_gesture:
@@ -66,9 +67,9 @@ def process_hands(frame, recognition_result):
                 elif hand_label == "Right":
                     right_corner_text = label
                 #Place for diff pre-defined actions based on recognized gestures
-                maybe_click(top_gesture, hand_label)
+                get_gesture_name(top_gesture, hand_label)
 
-                if should_calculate_angle(top_gesture, finger_gesture_text) and hand_label == cfg.second_hand:
+                if should_calculate_angle(top_gesture, finger_gesture_text) and hand_label == cfg.off_hand:
                     degrees = calculate_pointer_angle(proto, hand_label)
                     if degrees is not None:
                         update_mouse_movement(degrees, cfg.cursor_speed)
@@ -119,7 +120,7 @@ def detect_finger_gesture(proto, hand_label):
         if index_open and middle_open and not ring_open and not pinky_open:
             if index_tip.y < index_mcp.y:
                 finger_gesture_text = "2 fingers: UP"
-                if hand_label == cfg.second_hand:
+                if hand_label == cfg.off_hand:
                     update_scrolling(5)
                 elif hand_label == cfg.main_hand:
                     if not cfg.speed_boost_active:
@@ -128,7 +129,7 @@ def detect_finger_gesture(proto, hand_label):
                     boost_applied = True
             else:
                 finger_gesture_text = "2 fingers: DOWN"
-                if hand_label == cfg.second_hand:
+                if hand_label == cfg.off_hand:
                     update_scrolling(-5)
         elif index_open and not middle_open:
             finger_gesture_text = "pointer"

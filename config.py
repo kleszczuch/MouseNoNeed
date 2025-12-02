@@ -8,9 +8,9 @@ class config:
     speed_boost_factor = 2
     speed_boost_active = False
     if main_hand == "Right":
-        second_hand = "Left"
+        off_hand = "Left"
     else:
-        second_hand = "Right"
+        off_hand = "Right"
 
     mp_drawing = mp.solutions.drawing_utils
     mp_hands = mp.solutions.hands  
