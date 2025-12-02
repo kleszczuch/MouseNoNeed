@@ -10,28 +10,10 @@ from mediapipe.framework.formats import landmark_pb2
 from click import click_func
 from mouse import update_mouse_movement
 from scroll import update_scrolling
-
-class config:
-    cursor_speed = 10 
-    main_hand = "Right"
-    default_cursor_speed = cursor_speed
-    speed_boost_factor = 2
-    speed_boost_active = False
-    if main_hand == "Right":
-        mouse_movement_hand = "Left"
-    else:
-        mouse_movement_hand = "Right"
-
-    mp_drawing = mp.solutions.drawing_utils
-    mp_hands = mp.solutions.hands  
-    camera_width = 1280
-    camera_height = 720
-    last_click_time = 0
-    MODEL_FILENAME = "gesture_recognizer.task"
-    camera_index = 0  
+from config import cfg
 
 
-config = config()
+
 
 def convert_hand_landmarks_proto_to_drawable(hand_landmarks_proto):
     return hand_landmarks_proto
@@ -47,12 +29,12 @@ def is_finger_open(tip, mcp, wrist, *, margin: float = 1.10, min_tip_mcp_dist: f
     dist_tip_mcp = calculate_distance(tip, mcp)
     return (dist_tip_wrist > dist_mcp_wrist * margin) and (dist_tip_mcp > min_tip_mcp_dist)
 
-def main():
+def start_recognition():
     if mp_tasks_python is None or mp_tasks_vision is None:
         print("No MediaPipe Tasks API (GestureRecognizer) available.")
         return
 
-    base_options = mp_tasks_python.BaseOptions(model_asset_path=config.MODEL_FILENAME)
+    base_options = mp_tasks_python.BaseOptions(model_asset_path=cfg.MODEL_FILENAME)
     options = mp_tasks_vision.GestureRecognizerOptions(
         base_options=base_options,
         num_hands=2,
@@ -60,17 +42,17 @@ def main():
         )
     recognizer = mp_tasks_vision.GestureRecognizer.create_from_options(options)
 
-    cap = cv2.VideoCapture(config.camera_index, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(cfg.camera_index, cv2.CAP_DSHOW)
     if not cap.isOpened():
         print("Unable to open camera.")
         return
  
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.camera_width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.camera_height)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, cfg.camera_width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cfg.camera_height)
 
     actual_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     actual_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(f"Camera {config.camera_index}: {actual_w}x{actual_h}")
+    print(f"Camera {cfg.camera_index}: {actual_w}x{actual_h}")
     cv2.setUseOptimized(True)
 
     try:
@@ -143,12 +125,12 @@ def main():
                             proto.landmark.add(x=lm.x, y=lm.y, z=getattr(lm, "z", 0.0))
 
                     # Draw landmarks
-                    config.mp_drawing.draw_landmarks(
+                    cfg.mp_drawing.draw_landmarks(
                         frame,
                         proto,
-                        config.mp_hands.HAND_CONNECTIONS,
-                        config.mp_drawing.DrawingSpec(color=color, thickness=2, circle_radius=3),
-                        config.mp_drawing.DrawingSpec(color=color, thickness=2, circle_radius=2)
+                        cfg.mp_hands.HAND_CONNECTIONS,
+                        cfg.mp_drawing.DrawingSpec(color=color, thickness=2, circle_radius=3),
+                        cfg.mp_drawing.DrawingSpec(color=color, thickness=2, circle_radius=2)
                     )
                     finger_gesture_text = ""
                     try:
@@ -182,9 +164,9 @@ def main():
                                         update_scrolling(5)
                                     elif hand_label == "Right":
                                         # apply a single boost while gesture is present; avoid loops
-                                        if not config.speed_boost_active:
-                                            config.cursor_speed = int(config.default_cursor_speed * config.speed_boost_factor)
-                                            config.speed_boost_active = True
+                                        if not cfg.speed_boost_active:
+                                            cfg.cursor_speed = int(cfg.default_cursor_speed * cfg.speed_boost_factor)
+                                            cfg.speed_boost_active = True
                                         boost_applied_this_frame = True
                                 else:
                                     finger_gesture_text = "2 fingers: DOWN"
@@ -205,8 +187,8 @@ def main():
                     elif hand_label == "Right":
                         right_corner_text = label
                         try:
-                            if top_gesture and top_gesture.category_name == "Closed_Fist" and hand_label == config.main_hand:
-                                config.last_click_time = click_func(config.last_click_time)
+                            if top_gesture and top_gesture.category_name == "Closed_Fist" and hand_label == cfg.main_hand:
+                                cfg.last_click_time = click_func(cfg.last_click_time)
                         except Exception as e:
                             print(f"Error while invoking click_func: {e}")
                     should_calc_angle = False
@@ -232,12 +214,12 @@ def main():
                                 print("Required landmarks for angle calculation are missing (need 5 and 8).") # DEBUG
                         except Exception as e:
                             print(f"Error calculating angle: {e}") # DEBUG
-                        if hand_label == config.mouse_movement_hand:
-                            update_mouse_movement(degrees, config.cursor_speed)
+                        if hand_label == cfg.mouse_movement_hand:
+                            update_mouse_movement(degrees, cfg.cursor_speed)
                 # if no hand applied boost this frame but boost is active, reset to default
-                if not boost_applied_this_frame and config.speed_boost_active:
-                    config.cursor_speed = config.default_cursor_speed
-                    config.speed_boost_active = False
+                if not boost_applied_this_frame and cfg.speed_boost_active:
+                    cfg.cursor_speed = cfg.default_cursor_speed
+                    cfg.speed_boost_active = False
 
                 frame = cv2.flip(frame, 1)
                 # Draw labels only in corners
@@ -260,6 +242,3 @@ def main():
     finally:
         cap.release()
         cv2.destroyAllWindows()
-
-if __name__ == "__main__":
-    main()
