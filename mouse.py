@@ -29,3 +29,11 @@ def update_mouse_movement(angle_degrees, speed_px_per_sec):
         pyautogui.moveRel(move_int_x, move_int_y)
         remainder_x -= move_int_x
         remainder_y -= move_int_y
+
+def click_func(last_click_time):
+    current_time = time.time()
+    print(f"Time since last click: {current_time - last_click_time:.2f} seconds")
+    if current_time - last_click_time > 1:
+        pyautogui.click()  
+        return current_time
+    return last_click_time
