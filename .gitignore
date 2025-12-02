@@ -1,0 +1,32 @@
+# --- PYTHON ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Środowiska wirtualne (bardzo ważne!)
+venv/
+env/
+.venv/
+.env
+
+# Dystrybucja / biblioteki
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebook (jeśli używasz)
+.ipynb_checkpoints
+
+# --- C# / VISUAL STUDIO ---
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# --- SYSTEMOWE ---
+Thumbs.db
+Desktop.ini
+.DS_Store
