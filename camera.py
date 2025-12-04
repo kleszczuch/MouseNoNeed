@@ -1,4 +1,3 @@
-
 import cv2
 from config import cfg
 from mediapipe.framework.formats import landmark_pb2
@@ -47,3 +46,14 @@ def extract_lists(recognition_result):
     handedness_list = recognition_result.handedness or []
     landmarks_list = recognition_result.hand_landmarks or []
     return gestures_list, handedness_list, landmarks_list
+
+def get_labels(top_gesture_text, hand_label, finger_gesture_text, left_corner_text=None, right_corner_text=None):
+    label = f"{hand_label}: {top_gesture_text}" if top_gesture_text else f"{hand_label}: -"
+    if finger_gesture_text:
+        label = f"{label} | {finger_gesture_text}"
+    
+    if hand_label == "Left":
+        left_corner_text = label
+    elif hand_label == "Right":
+        right_corner_text = label
+    return left_corner_text, right_corner_text

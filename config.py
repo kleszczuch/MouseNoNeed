@@ -6,6 +6,8 @@ class config:
     main_hand = "Left"
     default_cursor_speed = cursor_speed
     speed_boost_factor = 2
+    scroll_speed = 5
+    default_scroll_speed = scroll_speed
     speed_boost_active = False
     if main_hand == "Right":
         off_hand = "Left"
