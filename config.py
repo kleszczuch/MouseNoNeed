@@ -6,11 +6,13 @@ class config:
     main_hand = "Left"
     default_cursor_speed = cursor_speed
     speed_boost_factor = 2
+    scroll_speed = 5
+    default_scroll_speed = scroll_speed
     speed_boost_active = False
     if main_hand == "Right":
-        second_hand = "Left"
+        off_hand = "Left"
     else:
-        second_hand = "Right"
+        off_hand = "Right"
 
     mp_drawing = mp.solutions.drawing_utils
     mp_hands = mp.solutions.hands  

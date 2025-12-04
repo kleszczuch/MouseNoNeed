@@ -49,7 +49,6 @@ def start_recognition():
     cap = create_camera_capture()
     if cap is None:
         return
-
     try:
         while True:
             ret, frame = cap.read()

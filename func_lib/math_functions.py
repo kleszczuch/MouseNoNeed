@@ -1,5 +1,5 @@
 import math
-
+from config import cfg
 
 def calculate_distance(p1, p2):
     return math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
@@ -32,3 +32,16 @@ def calculate_pointer_angle(proto, hand_label):
     except Exception as e:
         print(f"Error calculating angle: {e}")
         return None
+
+def is_applied_boost(boost_applied_this_frame):
+    print("RESET BOOST:", boost_applied_this_frame, cfg.speed_boost_active)    
+    if not boost_applied_this_frame and cfg.speed_boost_active:
+        cfg.cursor_speed = cfg.default_cursor_speed
+        cfg.scroll_speed = cfg.default_scroll_speed
+        cfg.speed_boost_active = False
+
+def apply_speed_boost():
+    print("APPLY BOOST:", cfg.cursor_speed, cfg.scroll_speed)
+    cfg.cursor_speed = int(cfg.default_cursor_speed * cfg.speed_boost_factor)
+    cfg.scroll_speed = int(cfg.default_scroll_speed * cfg.speed_boost_factor)
+    cfg.speed_boost_active = True
