@@ -21,7 +21,7 @@ class config:
     camera_width_crop = 640
     camera_height_crop = 480
     last_click_time = 0
-    MODEL_FILENAME = "gesture_recognizer.task"
+    MODEL_FILENAME = "configuration/gesture_recognizer.task"
     camera_index = 0  
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 0.8
