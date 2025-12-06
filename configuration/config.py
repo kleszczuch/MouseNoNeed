@@ -16,8 +16,10 @@ class config:
 
     mp_drawing = mp.solutions.drawing_utils
     mp_hands = mp.solutions.hands  
-    camera_width = 1280
-    camera_height = 720
+    camera_width_default = 1280
+    camera_height_default = 720
+    camera_width_crop = 640
+    camera_height_crop = 480
     last_click_time = 0
     MODEL_FILENAME = "gesture_recognizer.task"
     camera_index = 0  

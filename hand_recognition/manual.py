@@ -1,4 +1,4 @@
-from config import cfg
+from configuration.config import cfg
 from func_lib.functions import update_scrolling
 from func_lib.math_functions import apply_speed_boost, calculate_distance
 

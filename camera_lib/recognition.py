@@ -5,9 +5,10 @@ import cv2
 import mediapipe as mp
 from mediapipe.tasks import python as mp_tasks_python
 from mediapipe.tasks.python import vision as mp_tasks_vision
-from config import cfg
-from camera import create_camera_capture
-from hand import process_hands
+from configuration.config import cfg
+from camera_lib.camera import create_camera_capture
+from hand_recognition.hand import process_hands
+from camera_lib.hand_croper import HandCropper
 
 
 def create_gesture_recognizer():
@@ -49,6 +50,13 @@ def start_recognition():
     cap = create_camera_capture()
     if cap is None:
         return
+
+    
+    cropper = HandCropper(
+        output_width=min(cfg.camera_width_crop, cfg.camera_width_default),
+        output_height=min(cfg.camera_height_crop, cfg.camera_height_default),
+        smoothing_factor=0.1,
+    )
     try:
         while True:
             ret, frame = cap.read()
@@ -58,7 +66,15 @@ def start_recognition():
             timestamp_ms = int(time.time() * 1000)
             recognition_result = recognizer.recognize_for_video(mp_image, timestamp_ms)
             frame = process_hands(frame, recognition_result)
-            cv2.imshow("Gesture Recognizer - press q to quit", frame)
+
+            hand_landmarks_list = (
+                recognition_result.hand_landmarks
+                if recognition_result and recognition_result.hand_landmarks
+                else None
+            )
+            cropped_frame = cropper.crop(frame, hand_landmarks_list)
+
+            cv2.imshow("Gesture Recognizer - press q to quit", cropped_frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
     finally:

@@ -1,4 +1,4 @@
-from config import cfg
+from configuration.config import cfg
 from func_lib.functions import click_func
 
 def close_fist_func(hand_label):

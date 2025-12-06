@@ -1,6 +1,6 @@
-from config import cfg
+from configuration.config import cfg
 from func_lib.math_functions import is_applied_boost, should_calculate_angle, calculate_pointer_angle
-from camera import draw_corner_labels, get_labels, to_landmark_proto, extract_lists
+from camera_lib.camera import draw_corner_labels, get_labels, to_landmark_proto, extract_lists
 from func_lib.mouse import update_mouse_movement
 import traceback
 from hand_recognition.predefinied import get_predefined_gesture

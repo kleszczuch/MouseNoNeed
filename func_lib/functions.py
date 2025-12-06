@@ -1,6 +1,6 @@
 import time
 import pyautogui
-from config import cfg
+from configuration.config import cfg
 
 def click_func(last_click_time):
     current_time = time.time()
