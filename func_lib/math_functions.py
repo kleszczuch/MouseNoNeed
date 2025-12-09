@@ -27,21 +27,21 @@ def calculate_pointer_angle(proto, hand_label):
         theta = (theta + 360.0) % 360.0
         degrees = (180.0 - theta) % 360.0
         degrees_mirrored = (180.0 - degrees) % 360.0
-        print(f"  -> ACTION ({hand_label}): 'pointer' tilt: {degrees_mirrored:.2f}° mirrored)")
+        #print(f"  -> ACTION ({hand_label}): 'pointer' tilt: {degrees_mirrored:.2f}° mirrored)")
         return degrees
     except Exception as e:
         print(f"Error calculating angle: {e}")
         return None
 
 def is_applied_boost(boost_applied_this_frame):
-    print("RESET BOOST:", boost_applied_this_frame, cfg.speed_boost_active)    
+    #print("RESET BOOST:", boost_applied_this_frame, cfg.speed_boost_active)    
     if not boost_applied_this_frame and cfg.speed_boost_active:
         cfg.cursor_speed = cfg.default_cursor_speed
         cfg.scroll_speed = cfg.default_scroll_speed
         cfg.speed_boost_active = False
 
 def apply_speed_boost():
-    print("APPLY BOOST:", cfg.cursor_speed, cfg.scroll_speed)
+    #print("APPLY BOOST:", cfg.cursor_speed, cfg.scroll_speed)
     cfg.cursor_speed = int(cfg.default_cursor_speed * cfg.speed_boost_factor)
     cfg.scroll_speed = int(cfg.default_scroll_speed * cfg.speed_boost_factor)
     cfg.speed_boost_active = True
