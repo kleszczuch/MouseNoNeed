@@ -14,7 +14,6 @@ class HandCropper:
             self.current_crop_y = (frame_height - self.output_height) // 2
 
     def crop(self, frame, multi_hand_landmarks):
-        """Zwraca wykadrowany obraz na podstawie landmarków dłoni."""
         h, w = frame.shape[:2]
         self._init_if_needed(w, h)
 
@@ -26,12 +25,8 @@ class HandCropper:
             hand_found = True
             centers = []
             for hand_landmarks in multi_hand_landmarks:
-                # Indeksy jak w MediaPipe Hands: 0 = WRIST, 12 = MIDDLE_FINGER_TIP
                 wrist = hand_landmarks[0]
                 middle_tip = hand_landmarks[12]
-                # współrzędne landmarków są dla obrazu NIE-odwróconego,
-                # ale frame, który tu przychodzi, jest już odbity w draw_corner_labels
-                # dlatego odwracamy X, żeby kadr podążał za tym, co widzisz na ekranie
                 cx = int((wrist.x + middle_tip.x) / 2 * w)
                 cx = w - cx
                 cy = int((wrist.y + middle_tip.y) / 2 * h)
