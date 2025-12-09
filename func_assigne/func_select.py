@@ -5,7 +5,6 @@ from func_lib.math_functions import apply_speed_boost
 
 
 def _resolve_hand_key(hand_label):
-    """Map real hand label ("Left"/"Right") to config key ("Main"/"Secondary")."""
     if hand_label == cfg.main_hand:
         return "Main"
     if hand_label == cfg.off_hand:
@@ -14,15 +13,10 @@ def _resolve_hand_key(hand_label):
 
 
 def select_and_call_func(gesture, hand_label, finger_gesture_text=""):
-    """Select function from JSON and execute it.
-
-    Returns True only when a speed boost was applied for this call.
-    """
     hand_key = _resolve_hand_key(hand_label)
     if hand_key is None:
         return False
 
-    # Decide which gesture name to use for lookup
     gesture_key = finger_gesture_text or (getattr(gesture, "category_name", "") if gesture else "")
     if not gesture_key:
         return False
@@ -36,7 +30,6 @@ def select_and_call_func(gesture, hand_label, finger_gesture_text=""):
 
 
 def call_function(func_name):
-    """Execute mapped function and return True if boost was applied."""
     if func_name == "click_func":
         cfg.last_click_time = click_func(cfg.last_click_time)
         return False
