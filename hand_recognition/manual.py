@@ -1,4 +1,5 @@
 from configuration.config import cfg
+from func_assigne.func_select import select_and_call_func
 from func_lib.functions import update_scrolling
 from func_lib.math_functions import apply_speed_boost, calculate_distance
 
@@ -14,9 +15,8 @@ def is_finger_open(tip, mcp, wrist, *, margin: float = 1.10, min_tip_mcp_dist: f
 def detect_finger_gesture(proto, hand_label):
     finger_gesture_text = ""
     try:
-        boost_applied = False
         if len(proto.landmark) <= 12:
-            return finger_gesture_text, False
+            return finger_gesture_text
 
         wrist = proto.landmark[0]
         index_tip = proto.landmark[8]
@@ -39,43 +39,18 @@ def detect_finger_gesture(proto, hand_label):
         ring_open = is_finger_open(ring_tip, ring_mcp, wrist) if ring_tip and ring_mcp else False
         pinky_open = is_finger_open(pinky_tip, pinky_mcp, wrist) if pinky_tip and pinky_mcp else False
 
-        boost_applied = False
-
         if index_open and middle_open and not ring_open and not pinky_open:
-            finger_gesture_text, boost_applied = two_finger(index_tip.y, index_mcp.y, hand_label)
+            finger_gesture_text = two_finger(index_tip.y, index_mcp.y)
         elif index_open and not middle_open:
             finger_gesture_text = "pointer"
 
-        return finger_gesture_text, boost_applied
+        return finger_gesture_text
     except Exception:
-        return "", False
+        return ""
     
-def two_finger(index_tip, index_mcp, hand_label):
+def two_finger(index_tip, index_mcp):
     if index_tip < index_mcp:
-        finger_gesture_text = "2 fingers: UP"
-        boost_applied = two_finger_up(hand_label)
+        finger_gesture_text = "2 fingers: Up"
     else:
-        finger_gesture_text = "2 fingers: DOWN"
-        if hand_label == cfg.off_hand:
-            boost_applied = two_finger_down(hand_label)
-    return finger_gesture_text, boost_applied
-
-def two_finger_up(hand_label):
-    boost_applied = False
-    if hand_label == cfg.off_hand:
-        update_scrolling(1)
-    elif hand_label == cfg.main_hand:
-        if not cfg.speed_boost_active:
-            apply_speed_boost()
-        boost_applied = True
-    return boost_applied
-
-
-def two_finger_down(hand_label):
-    boost_applied = False
-    if hand_label == cfg.off_hand:
-        update_scrolling(-1)
-    elif hand_label == cfg.main_hand:
-        print("Two_Finger_Down_main")
-    return boost_applied
-    
+        finger_gesture_text = "2 fingers: Down"
+    return finger_gesture_text

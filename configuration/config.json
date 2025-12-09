@@ -1,0 +1,17 @@
+{
+    "cursor_speed": 10,
+    "main_hand": "Left",
+    "default_cursor_speed": 10,
+    "speed_boost_factor": 2,
+    "scroll_speed": 5,
+    "default_scroll_speed": 5,
+    "speed_boost_active": false,
+    "camera_width_default": 1280,
+    "camera_height_default": 720,
+    "camera_width_crop": 640,
+    "camera_height_crop": 480,
+    "last_click_time": 0,
+    "camera_index": 0,
+    "font_scale": 0.8,
+    "thickness": 2
+}
