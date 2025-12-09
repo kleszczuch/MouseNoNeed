@@ -1,5 +1,5 @@
 import cv2
-from config import cfg
+from configuration.config import cfg
 from mediapipe.framework.formats import landmark_pb2
 
 
@@ -12,8 +12,8 @@ def create_camera_capture():
         print("Unable to open camera.")
         return None
 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, cfg.camera_width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cfg.camera_height)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, cfg.camera_width_default)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cfg.camera_height_default)
 
     actual_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     actual_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -57,3 +57,4 @@ def get_labels(top_gesture_text, hand_label, finger_gesture_text, left_corner_te
     elif hand_label == "Right":
         right_corner_text = label
     return left_corner_text, right_corner_text
+

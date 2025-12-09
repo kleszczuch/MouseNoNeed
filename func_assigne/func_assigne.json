@@ -1,0 +1,37 @@
+[
+    {
+        "hand": "Main", 
+        "functions": [
+            {
+                "pointer": "None",
+                "2 fingers: Up": "apply_boost",
+                "2 fingers: Down": "None",
+                "Closed_Fist": "click_func",
+                "Open_Palm": "None",
+                "Pointing_Up": "None",
+                "Victory": "None",
+                "Thumbs_Down": "None",
+                "Thumbs_Up": "None",
+                "ILoveYou": "None"
+            }   
+        ]
+    },
+    {
+        "hand": "Secondary", 
+        "functions": [
+            {
+                "pointer": "None",
+                "2 fingers: Up": "update_scrolling(1)",
+                "2 fingers: Down": "update_scrolling(-1)",
+                "Closed_Fist": "None",
+                "Open_Palm": "None",
+                "Pointing_Up": "None",
+                "Victory": "None",
+                "Thumbs_Down": "None",
+                "Thumbs_Up": "None",
+                "ILoveYou": "None"
+            }   
+        ]
+    }
+
+]
