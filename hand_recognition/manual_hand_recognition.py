@@ -1,7 +1,4 @@
-from configuration.config import cfg
-from func_assigne.func_select import select_and_call_func
-from func_lib.functions import update_scrolling
-from func_lib.math_functions import apply_speed_boost, calculate_distance
+from function_library.math_functions import calculate_distance
 
 def is_finger_open(tip, mcp, wrist, *, margin: float = 1.10, min_tip_mcp_dist: float = 0.035):
     if tip is None or mcp is None or wrist is None:
@@ -15,10 +12,13 @@ def is_finger_open(tip, mcp, wrist, *, margin: float = 1.10, min_tip_mcp_dist: f
 def detect_finger_gesture(proto, hand_label):
     finger_gesture_text = ""
     try:
+        boost_applied = False
         if len(proto.landmark) <= 12:
-            return finger_gesture_text
+            return finger_gesture_text, False
 
         wrist = proto.landmark[0]
+        thumb_tip = proto.landmark[4]
+        thumb_mcp = proto.landmark[2]
         index_tip = proto.landmark[8]
         index_mcp = proto.landmark[5]
         middle_tip = proto.landmark[12]
@@ -27,7 +27,9 @@ def detect_finger_gesture(proto, hand_label):
         ring_mcp = proto.landmark[13] if len(proto.landmark) > 13 else None
         pinky_tip = proto.landmark[20] if len(proto.landmark) > 20 else None
         pinky_mcp = proto.landmark[17] if len(proto.landmark) > 17 else None
+        
 
+        thumb_open = is_finger_open(thumb_tip, thumb_mcp, wrist)
         index_open = is_finger_open(index_tip, index_mcp, wrist)
         middle_open = is_finger_open(
             middle_tip,
@@ -39,16 +41,18 @@ def detect_finger_gesture(proto, hand_label):
         ring_open = is_finger_open(ring_tip, ring_mcp, wrist) if ring_tip and ring_mcp else False
         pinky_open = is_finger_open(pinky_tip, pinky_mcp, wrist) if pinky_tip and pinky_mcp else False
 
+        boost_applied = False
+
         if index_open and middle_open and not ring_open and not pinky_open:
-            finger_gesture_text = two_finger(index_tip.y, index_mcp.y)
+            finger_gesture_text = are_2_fingers_up_or_down(index_tip.y, index_mcp.y)
         elif index_open and not middle_open:
             finger_gesture_text = "pointer"
 
-        return finger_gesture_text
+        return finger_gesture_text, boost_applied
     except Exception:
-        return ""
+        return "", False
     
-def two_finger(index_tip, index_mcp):
+def are_2_fingers_up_or_down(index_tip, index_mcp):
     if index_tip < index_mcp:
         finger_gesture_text = "2 fingers: Up"
     else:

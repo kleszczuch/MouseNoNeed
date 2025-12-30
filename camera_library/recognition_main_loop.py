@@ -5,11 +5,10 @@ import cv2
 import mediapipe as mp
 from mediapipe.tasks import python as mp_tasks_python
 from mediapipe.tasks.python import vision as mp_tasks_vision
-from configuration.config import cfg
-from camera_lib.camera import create_camera_capture
-from hand_recognition.hand import process_hands
-from camera_lib.hand_croper import HandCropper
-
+from configuration.configuration import cfg
+from camera_library.camera_display import create_camera_capture
+from hand_recognition.hand_processing import process_hands
+from camera_library.hand_croper import HandCropper
 
 def create_gesture_recognizer():
     if mp_tasks_python is None or mp_tasks_vision is None:
@@ -23,8 +22,6 @@ def create_gesture_recognizer():
         running_mode=mp_tasks_vision.RunningMode.VIDEO,
     )
     return mp_tasks_vision.GestureRecognizer.create_from_options(options)
-
-
 
 def to_mp_image(frame):
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -49,9 +46,7 @@ def start_recognition():
 
     cap = create_camera_capture()
     if cap is None:
-        return
-
-    
+        return  
     cropper = HandCropper(
         output_width=min(cfg.camera_width_crop, cfg.camera_width_default),
         output_height=min(cfg.camera_height_crop, cfg.camera_height_default),

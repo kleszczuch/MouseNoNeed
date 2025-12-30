@@ -1,5 +1,3 @@
-from configuration.config import cfg
-
 class HandCropper:
     def __init__(self, output_width, output_height, smoothing_factor=0.1):
         self.output_width = output_width

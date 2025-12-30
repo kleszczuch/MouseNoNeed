@@ -2,7 +2,7 @@ import mediapipe as mp
 import cv2
 import json
 
-configuration_file_path = 'configuration/config.json'
+configuration_file_path = 'configuration/configuration.json'
 settings = json.load(open(configuration_file_path))
 
 class config:
@@ -21,8 +21,6 @@ class config:
     camera_index = settings["camera_index"]  
     font_scale = settings["font_scale"]
     thickness = settings["thickness"]
-    
-    
     mp_drawing = mp.solutions.drawing_utils
     mp_hands = mp.solutions.hands
     MODEL_FILENAME = "configuration/gesture_recognizer.task"

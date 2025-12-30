@@ -1,11 +1,10 @@
-from configuration.config import cfg
-from func_assigne.func_select import select_and_call_func
-from func_lib.math_functions import is_applied_boost, should_calculate_angle, calculate_pointer_angle
-from camera_lib.camera import draw_corner_labels, get_labels, to_landmark_proto, extract_lists
-from func_lib.mouse import update_mouse_movement
+from configuration.configuration import cfg
+from configuration.function_assigne.function_configuration import select_and_call_func
+from function_library.math_functions import should_calculate_angle, calculate_pointer_angle
+from camera_library.camera_display import draw_corner_labels, get_labels, to_landmark_proto, extract_lists
+from function_library.trigerable_functions import update_mouse_movement, is_applied_boost
+from hand_recognition.manual_hand_recognition import detect_finger_gesture
 import traceback
-from hand_recognition.manual import detect_finger_gesture
-
 
 def process_hands(frame, recognition_result):
     h, w = frame.shape[:2]
@@ -38,7 +37,7 @@ def process_hands(frame, recognition_result):
                     cfg.mp_drawing.DrawingSpec(color=color, thickness=2, circle_radius=2),
                 )
 
-                finger_gesture_text = detect_finger_gesture(proto, hand_label)
+                finger_gesture_text, _ = detect_finger_gesture(proto, hand_label)
                 boost_applied = select_and_call_func(top_gesture, hand_label, finger_gesture_text)
                 boost_applied_this_frame = boost_applied_this_frame or boost_applied
                 left_corner_text, right_corner_text = get_labels(top_gesture_text, hand_label, finger_gesture_text, left_corner_text, right_corner_text)

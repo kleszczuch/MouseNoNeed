@@ -1,5 +1,5 @@
 import cv2
-from configuration.config import cfg
+from configuration.configuration import cfg
 from mediapipe.framework.formats import landmark_pb2
 
 
@@ -11,10 +11,8 @@ def create_camera_capture():
     if not cap.isOpened():
         print("Unable to open camera.")
         return None
-
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, cfg.camera_width_default)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cfg.camera_height_default)
-
     actual_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     actual_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     print(f"Camera {cfg.camera_index}: {actual_w}x{actual_h}")
@@ -24,7 +22,6 @@ def create_camera_capture():
 def to_landmark_proto(hand_lms):
     if isinstance(hand_lms, landmark_pb2.NormalizedLandmarkList):
         return hand_lms
-
     proto = landmark_pb2.NormalizedLandmarkList()
     for lm in hand_lms:
         proto.landmark.add(x=lm.x, y=lm.y, z=getattr(lm, "z", 0.0))
@@ -51,7 +48,6 @@ def get_labels(top_gesture_text, hand_label, finger_gesture_text, left_corner_te
     label = f"{hand_label}: {top_gesture_text}" if top_gesture_text else f"{hand_label}: -"
     if finger_gesture_text:
         label = f"{label} | {finger_gesture_text}"
-    
     if hand_label == "Left":
         left_corner_text = label
     elif hand_label == "Right":
