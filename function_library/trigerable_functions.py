@@ -2,6 +2,27 @@ import time
 import pyautogui
 from configuration.configuration import cfg
 import math
+import subprocess
+import os
+import keyboard
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+from ctypes import cast, POINTER
+
+_volume_device = None
+
+def _get_volume_device():
+    global _volume_device
+    if _volume_device is not None:
+        return _volume_device
+    try:
+        devices = AudioUtilities.GetSpeakers()
+        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        _volume_device = cast(interface, POINTER(IAudioEndpointVolume))
+        return _volume_device
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"_get_volume_device error: {e}")
+        return None
 
 # PyAutoGUI configuration
 pyautogui.FAILSAFE = False
@@ -57,3 +78,74 @@ def update_mouse_movement(angle_degrees, speed_px_per_sec):
         pyautogui.moveRel(move_int_x, move_int_y)
         remainder_x -= move_int_x
         remainder_y -= move_int_y
+
+def volume_up(steps=1):
+    if cfg.debug_mode:
+        print(f"volume_up: steps={steps}")
+    try:
+        device = _get_volume_device()
+        if device is None:
+            return
+        current_vol = device.GetMasterVolume()
+        # Each step increases volume by 2% (0.02)
+        new_vol = min(1.0, current_vol + (steps * 0.02))
+        device.SetMasterVolume(new_vol, None)
+        if cfg.debug_mode:
+            print(f"volume_up: {current_vol:.2f} -> {new_vol:.2f}")
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"volume_up error: {e}")
+
+def volume_down(steps=1):
+    if cfg.debug_mode:
+        print(f"volume_down: steps={steps}")
+    try:
+        device = _get_volume_device()
+        if device is None:
+            return
+        current_vol = device.GetMasterVolume()
+        # Each step decreases volume by 2% (0.02)
+        new_vol = max(0.0, current_vol - (steps * 0.02))
+        device.SetMasterVolume(new_vol, None)
+        if cfg.debug_mode:
+            print(f"volume_down: {current_vol:.2f} -> {new_vol:.2f}")
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"volume_down error: {e}")
+
+def toggle_mute():
+    if cfg.debug_mode:
+        print("toggle_mute")
+    try:
+        device = _get_volume_device()
+        if device is None:
+            return
+        is_muted = device.GetMute()
+        device.SetMute(not is_muted, None)
+        if cfg.debug_mode:
+            print(f"toggle_mute: {is_muted} -> {not is_muted}")
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"toggle_mute error: {e}")
+
+def launch_voice_assistant():
+    if cfg.debug_mode:
+        print("launch_voice_assistant: sending Win+H")
+    try:
+        keyboard.press_and_release('win+h')
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"launch_voice_assistant error: {e}")
+
+def open_on_screen_keyboard():
+    if cfg.debug_mode:
+        print("open_on_screen_keyboard: launching osk.exe")
+    try:
+        if os.name == 'nt':
+            subprocess.Popen("osk.exe", shell=True)
+        else:
+            if cfg.debug_mode:
+                print("On-screen keyboard is only supported on Windows via osk.exe")
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"open_on_screen_keyboard error: {e}")

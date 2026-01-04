@@ -1,7 +1,16 @@
 import json
 from pyparsing import Path
 from configuration.configuration import cfg
-from function_library.trigerable_functions import click_func, update_scrolling, apply_speed_boost
+from function_library.trigerable_functions import (
+    click_func,
+    update_scrolling,
+    apply_speed_boost,
+    volume_up,
+    volume_down,
+    toggle_mute,
+    launch_voice_assistant,
+    open_on_screen_keyboard,
+)
 
 FUNC_FILE = Path(__file__).with_name("function_assigne.json")
 
@@ -47,6 +56,21 @@ def call_function(func_name):
         return False
     elif func_name == "update_scrolling(-1)":
         update_scrolling(-1)
+        return False
+    elif func_name == "volume_up":
+        volume_up()
+        return False
+    elif func_name == "volume_down":
+        volume_down()
+        return False
+    elif func_name == "toggle_mute":
+        toggle_mute()
+        return False
+    elif func_name == "voice_assistant":
+        launch_voice_assistant()
+        return False
+    elif func_name == "osk":
+        open_on_screen_keyboard()
         return False
     else:
         return False
