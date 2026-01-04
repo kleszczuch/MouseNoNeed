@@ -1,6 +1,4 @@
-import os
 import time
-import tempfile
 import cv2
 import mediapipe as mp
 from mediapipe.tasks import python as mp_tasks_python
@@ -25,19 +23,7 @@ def create_gesture_recognizer():
 
 def to_mp_image(frame):
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    try:
-        return mp.Image.create_from_array(image_rgb)
-    except Exception:
-        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-            cv2.imwrite(tmp.name, frame)
-            tmp_path = tmp.name
-        try:
-            return mp.Image.create_from_file(tmp_path)
-        finally:
-            try:
-                os.remove(tmp_path)
-            except Exception:
-                pass
+    return mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
 
 def start_recognition():
     recognizer = create_gesture_recognizer()

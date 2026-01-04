@@ -12,7 +12,11 @@
                 "Victory": "None",
                 "Thumbs_Down": "None",
                 "Thumbs_Up": "None",
-                "ILoveYou": "None"
+                "ILoveYou": "None",
+                "Thumb+Index": "None",
+                "Thumb+Middle": "None",
+                "Thumb+Ring": "None",
+                "Thumb+Pinky": "None"
             }   
         ]
     },
@@ -29,7 +33,11 @@
                 "Victory": "None",
                 "Thumbs_Down": "None",
                 "Thumbs_Up": "None",
-                "ILoveYou": "None"
+                "ILoveYou": "None",
+                "Thumb+Index": "None",
+                "Thumb+Middle": "None",
+                "Thumb+Ring": "None",
+                "Thumb+Pinky": "None"
             }   
         ]
     }

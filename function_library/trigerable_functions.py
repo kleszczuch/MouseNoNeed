@@ -3,30 +3,39 @@ import pyautogui
 from configuration.configuration import cfg
 import math
 
+# PyAutoGUI configuration
+pyautogui.FAILSAFE = False
+pyautogui.PAUSE = 0
+
+remainder_x = 0.0
+remainder_y = 0.0
+scroll_remainder = 0.0
+
 def is_applied_boost(boost_applied_this_frame):
-    print("RESET BOOST:", boost_applied_this_frame, cfg.speed_boost_active)    
+    if cfg.debug_mode:
+        print("RESET BOOST:", boost_applied_this_frame, cfg.speed_boost_active)    
     if not boost_applied_this_frame and cfg.speed_boost_active:
         cfg.cursor_speed = cfg.default_cursor_speed
         cfg.scroll_speed = cfg.default_scroll_speed
         cfg.speed_boost_active = False
 
 def apply_speed_boost():
-    print("APPLY BOOST:", cfg.cursor_speed, cfg.scroll_speed)
+    if cfg.debug_mode:
+        print("APPLY BOOST:", cfg.cursor_speed, cfg.scroll_speed)
     cfg.cursor_speed = int(cfg.default_cursor_speed * cfg.speed_boost_factor)
     cfg.scroll_speed = int(cfg.default_scroll_speed * cfg.speed_boost_factor)
     cfg.speed_boost_active = True
 
 def click_func(last_click_time):
     current_time = time.time()
-    print(f"Time since last click: {current_time - last_click_time:.2f} seconds")
+    if cfg.debug_mode:
+        print(f"Time since last click: {current_time - last_click_time:.2f} seconds")
     if current_time - last_click_time > 1:
         pyautogui.click()  
-        return current_time
     return last_click_time
 
 def update_scrolling(direction=1):
     global scroll_remainder
-    scroll_remainder = 0.0
     step = cfg.scroll_speed if direction > 0 else -cfg.scroll_speed 
     scroll_remainder += step
     scroll_int = int(scroll_remainder)
@@ -36,11 +45,7 @@ def update_scrolling(direction=1):
 
 
 def update_mouse_movement(angle_degrees, speed_px_per_sec):
-    pyautogui.FAILSAFE = False
-    pyautogui.PAUSE = 0  
-    remainder_x = 0.0
-    remainder_y = 0.0
-    #global remainder_x, remainder_y
+    global remainder_x, remainder_y
     angle_radians = math.radians(angle_degrees)
     dx_float = speed_px_per_sec * math.cos(angle_radians)
     dy_float = -speed_px_per_sec * math.sin(angle_radians) 

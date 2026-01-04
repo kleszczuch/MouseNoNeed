@@ -5,6 +5,49 @@ from camera_library.camera_display import draw_corner_labels, get_labels, to_lan
 from function_library.trigerable_functions import update_mouse_movement, is_applied_boost
 from hand_recognition.manual_hand_recognition import detect_finger_gesture
 import traceback
+import os
+import cv2
+import time
+import logging
+
+# Setup logging
+logging.basicConfig(
+    filename='debug_log.txt',
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+_last_logged_gesture_by_hand = {}
+
+def _log_gesture_change(hand_label: str, top_gesture, finger_gesture_text: str, frame=None):
+    top_name = getattr(top_gesture, "category_name", "") if top_gesture else ""
+    top_score = getattr(top_gesture, "score", None) if top_gesture else None
+
+    parts = [hand_label or "Unknown"]
+    if top_name:
+        parts.append(f"mp:{top_name}" + (f"({top_score:.2f})" if isinstance(top_score, (int, float)) else ""))
+    if finger_gesture_text:
+        parts.append(f"manual:{finger_gesture_text}")
+
+    msg = " | ".join(parts) if len(parts) > 1 else f"{hand_label or 'Unknown'} | -"
+
+    prev = _last_logged_gesture_by_hand.get(hand_label)
+    if prev != msg:
+        _last_logged_gesture_by_hand[hand_label] = msg
+        if cfg.debug_mode:
+            print(f"[gesture] {msg}")
+            logging.info(f"[gesture] {msg}")
+            
+            if frame is not None and (top_name or finger_gesture_text):
+                try:
+                    if not os.path.exists("debug_images"):
+                        os.makedirs("debug_images")
+                    timestamp = int(time.time() * 1000)
+                    filename = f"debug_images/{timestamp}_{hand_label}_{top_name}_{finger_gesture_text}.jpg".replace(" ", "_").replace(":", "")
+                    cv2.imwrite(filename, frame, [cv2.IMWRITE_JPEG_QUALITY, 50])
+                except Exception as e:
+                    print(f"Failed to save debug image: {e}")
 
 def process_hands(frame, recognition_result):
     h, w = frame.shape[:2]
@@ -38,6 +81,9 @@ def process_hands(frame, recognition_result):
                 )
 
                 finger_gesture_text, _ = detect_finger_gesture(proto, hand_label)
+
+                _log_gesture_change(hand_label, top_gesture, finger_gesture_text, frame)
+                
                 boost_applied = select_and_call_func(top_gesture, hand_label, finger_gesture_text)
                 boost_applied_this_frame = boost_applied_this_frame or boost_applied
                 left_corner_text, right_corner_text = get_labels(top_gesture_text, hand_label, finger_gesture_text, left_corner_text, right_corner_text)

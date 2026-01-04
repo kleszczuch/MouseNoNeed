@@ -3,9 +3,6 @@ from configuration.configuration import cfg
 from mediapipe.framework.formats import landmark_pb2
 
 
-def convert_hand_landmarks_proto_to_drawable(hand_landmarks_proto):
-    return hand_landmarks_proto
-
 def create_camera_capture():
     cap = cv2.VideoCapture(cfg.camera_index, cv2.CAP_DSHOW)
     if not cap.isOpened():
@@ -13,9 +10,6 @@ def create_camera_capture():
         return None
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, cfg.camera_width_default)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cfg.camera_height_default)
-    actual_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    actual_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(f"Camera {cfg.camera_index}: {actual_w}x{actual_h}")
     cv2.setUseOptimized(True)
     return cap
 

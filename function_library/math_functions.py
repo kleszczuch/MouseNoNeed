@@ -24,8 +24,8 @@ def calculate_pointer_angle(proto, hand_label):
         theta = math.degrees(math.atan2(dy_math, dx))
         theta = (theta + 360.0) % 360.0
         degrees = (180.0 - theta) % 360.0
-        degrees_mirrored = (180.0 - degrees) % 360.0
-        print(f"  -> ACTION ({hand_label}): 'pointer' tilt: {degrees_mirrored:.2f}° mirrored)")
+        #degrees_mirrored = (180.0 - degrees) % 360.0
+        #print(f"  -> ACTION ({hand_label}): 'pointer' tilt: {degrees_mirrored:.2f}° mirrored)")
         return degrees
     except Exception as e:
         print(f"Error calculating angle: {e}")
