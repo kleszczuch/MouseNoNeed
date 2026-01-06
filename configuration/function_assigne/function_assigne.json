@@ -1,6 +1,6 @@
 [
     {
-        "hand": "Main", 
+        "hand": "Main",
         "functions": [
             {
                 "2 fingers: Up": "apply_boost",
@@ -8,7 +8,7 @@
                 "Closed_Fist": "click_func",
                 "Open_Palm": "None",
                 "Pointing_Up": "None",
-                "Victory": "voice_assistant",
+                "Victory": "None",
                 "Thumb_Down": "None",
                 "Thumb_Up": "None",
                 "ILoveYou": "None",
@@ -16,11 +16,11 @@
                 "Thumb+Middle": "None",
                 "Thumb+Ring": "None",
                 "Thumb+Pinky": "None"
-            }   
+            }
         ]
     },
     {
-        "hand": "Secondary", 
+        "hand": "Secondary",
         "functions": [
             {
                 "2 fingers: Up": "update_scrolling(1)",
@@ -34,10 +34,9 @@
                 "ILoveYou": "toggle_mute",
                 "Thumb+Index": "osk",
                 "Thumb+Middle": "None",
-                "Thumb+Ring": "None",
+                "Thumb+Ring": "voice_assistant",
                 "Thumb+Pinky": "None"
-            }   
+            }
         ]
     }
-
 ]

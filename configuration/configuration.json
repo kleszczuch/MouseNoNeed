@@ -1,8 +1,8 @@
 {
-    "cursor_speed": 10,
+    "cursor_speed": 2,
     "main_hand": "Left",
     "default_cursor_speed": 10,
-    "speed_boost_factor": 2,
+    "speed_boost_factor": 5.0,
     "scroll_speed": 5,
     "default_scroll_speed": 5,
     "speed_boost_active": false,
@@ -10,8 +10,8 @@
     "camera_height_default": 1080,
     "camera_width_crop": 800,
     "camera_height_crop": 480,
-    "last_click_time": 0,
-    "camera_index": 0,
+    "last_click_time": 0.0,
+    "camera_index": 1,
     "font_scale": 0.8,
     "thickness": 2,
     "debug_mode": false
