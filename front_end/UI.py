@@ -343,6 +343,7 @@ class MainWindow(QMainWindow):
         self.add_setting_row(sett_layout, "Boost Factor", "speed_boost_factor")
         self.add_setting_row(sett_layout, "Cam Width (Crop)", "camera_width_crop")
         self.add_setting_row(sett_layout, "Cam Height (Crop)", "camera_height_crop")
+        self.add_setting_combo(sett_layout, "Main Hand", "main_hand", ["Left", "Right"])
         self.add_setting_bool(sett_layout, "Debug Mode", "debug_mode")
         
         # Add Save Settings button
@@ -405,8 +406,8 @@ class MainWindow(QMainWindow):
         l = QVBoxLayout(dlg)
         
         combo = QComboBox()
-        options = ["None", "click_func", "apply_boost", "volume_up", "volume_down", "toggle_mute", 
-                   "voice_assistant", "osk", "update_scrolling(1)", "update_scrolling(-1)"]
+        options = ["None", "click_func", "right_click_func", "apply_boost", "volume_up", "volume_down", "toggle_mute", 
+                   "voice_assistant", "osk", "update_scrolling up", "update_scrolling down", "next_song", "previous_song", "play_pause_music", "double_click_func", "minimize_window", "maximize_window"]
         combo.addItems(options)
         combo.setCurrentText(current_val if current_val in options else "None")
         l.addWidget(combo)
@@ -443,6 +444,19 @@ class MainWindow(QMainWindow):
         chk.setChecked(bool(self.settings_data.get(key, False)))
         chk.clicked.connect(lambda: self.update_setting(key, chk.isChecked()))
         parent_layout.addWidget(chk)
+
+    def add_setting_combo(self, parent_layout, label_text, key, options):
+        row = QHBoxLayout()
+        lbl = QLabel(label_text)
+        lbl.setStyleSheet(f"color: {THEME['text_primary']};")
+        row.addWidget(lbl)
+        combo = QComboBox()
+        combo.addItems(options)
+        combo.setCurrentText(str(self.settings_data.get(key, options[0])))
+        combo.setStyleSheet(f"background: {THEME['input_bg']}; color: {THEME['text_primary']}; border: 1px solid {THEME['input_border']}; border-radius: 3px; padding: 3px;")
+        combo.currentTextChanged.connect(lambda: self.update_setting(key, combo.currentText()))
+        row.addWidget(combo)
+        parent_layout.addLayout(row)
 
     def update_setting(self, key, value):
             current_val = self.settings_data.get(key)

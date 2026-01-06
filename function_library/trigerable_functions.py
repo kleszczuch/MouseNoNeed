@@ -57,6 +57,55 @@ def click_func(last_click_time):
     if current_time - last_click_time > 1:
         pyautogui.click()  
     return last_click_time
+    
+def right_click_func(last_click_time):
+    current_time = time.time()
+    if cfg.debug_mode:
+        print(f"Time since last right click: {current_time - last_click_time:.2f} seconds")
+    if current_time - last_click_time > 1:
+        pyautogui.rightClick()  
+    return last_click_time
+
+def next_song():
+    if cfg.debug_mode:
+        print("next_song")
+    keyboard.press_and_release('media next')
+
+def previous_song():
+    if cfg.debug_mode:
+        print("previous_song")
+    keyboard.press_and_release('media previous')
+
+def play_pause_music():
+    if cfg.debug_mode:
+        print("play_pause_music")
+    keyboard.press_and_release('media play/pause')
+
+def double_click_func(last_click_time):
+    current_time = time.time()
+    if cfg.debug_mode:
+        print(f"Time since last double click: {current_time - last_click_time:.2f} seconds")
+    if current_time - last_click_time > 1:
+        pyautogui.doubleClick()  
+    return last_click_time
+
+def minimize_window():
+    if cfg.debug_mode:
+        print("minimize_window: sending Win+Down")
+    try:
+        keyboard.press_and_release('win+down')
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"minimize_window error: {e}")
+
+def maximize_window():
+    if cfg.debug_mode:
+        print("maximize_window: sending Win+Up")
+    try:
+        keyboard.press_and_release('win+up')
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"maximize_window error: {e}")
 
 def update_scrolling(direction=1):
     global scroll_remainder

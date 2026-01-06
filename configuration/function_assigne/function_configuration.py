@@ -3,6 +3,7 @@ from pyparsing import Path
 from configuration.configuration import cfg
 from function_library.trigerable_functions import (
     click_func,
+    right_click_func,
     update_scrolling,
     apply_speed_boost,
     volume_up,
@@ -10,6 +11,10 @@ from function_library.trigerable_functions import (
     toggle_mute,
     launch_voice_assistant,
     open_on_screen_keyboard,
+    next_song,
+    previous_song,
+    play_pause_music,
+
 )
 
 FUNC_FILE = Path(__file__).with_name("function_assigne.json")
@@ -51,10 +56,10 @@ def call_function(func_name):
     elif func_name == "apply_boost":
         apply_speed_boost()
         return True
-    elif func_name == "update_scrolling(1)":
+    elif func_name == "update_scrolling up":
         update_scrolling(1)
         return False
-    elif func_name == "update_scrolling(-1)":
+    elif func_name == "update_scrolling down":
         update_scrolling(-1)
         return False
     elif func_name == "volume_up":
@@ -72,6 +77,16 @@ def call_function(func_name):
     elif func_name == "osk":
         open_on_screen_keyboard()
         return False
+    elif func_name == "next_song":
+        next_song()
+        return False
+    elif func_name == "previous_song":
+        previous_song()
+        return False
+    elif func_name == "play_pause_music":
+        play_pause_music()
+        return False
+    
     else:
         return False
     # Add any new functions here as needed

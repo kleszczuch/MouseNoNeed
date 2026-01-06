@@ -15,7 +15,7 @@
                 "Thumb+Index": "None",
                 "Thumb+Middle": "None",
                 "Thumb+Ring": "None",
-                "Thumb+Pinky": "None"
+                "Thumb+Pinky": "voice_assistant"
             }
         ]
     },
@@ -23,8 +23,8 @@
         "hand": "Secondary",
         "functions": [
             {
-                "2 fingers: Up": "update_scrolling(1)",
-                "2 fingers: Down": "update_scrolling(-1)",
+                "2 fingers: Up": "update_scrolling up",
+                "2 fingers: Down": "update_scrolling down",
                 "Closed_Fist": "None",
                 "Open_Palm": "None",
                 "Pointing_Up": "None",
@@ -32,10 +32,10 @@
                 "Thumb_Down": "volume_down",
                 "Thumb_Up": "volume_up",
                 "ILoveYou": "toggle_mute",
-                "Thumb+Index": "osk",
+                "Thumb+Index": "None",
                 "Thumb+Middle": "None",
-                "Thumb+Ring": "voice_assistant",
-                "Thumb+Pinky": "None"
+                "Thumb+Ring": "maximize_window",
+                "Thumb+Pinky": "minimize_window"
             }
         ]
     }
