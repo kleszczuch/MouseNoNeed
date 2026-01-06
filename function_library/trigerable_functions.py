@@ -16,8 +16,9 @@ def _get_volume_device():
         return _volume_device
     try:
         devices = AudioUtilities.GetSpeakers()
-        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-        _volume_device = cast(interface, POINTER(IAudioEndpointVolume))
+        # interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        # _volume_device = cast(interface, POINTER(IAudioEndpointVolume))
+        _volume_device = devices.EndpointVolume
         return _volume_device
     except Exception as e:
         if cfg.debug_mode:
@@ -31,6 +32,8 @@ pyautogui.PAUSE = 0
 remainder_x = 0.0
 remainder_y = 0.0
 scroll_remainder = 0.0
+last_mute_time = 0
+
 
 def is_applied_boost(boost_applied_this_frame):
     if cfg.debug_mode:
@@ -64,7 +67,6 @@ def update_scrolling(direction=1):
         pyautogui.scroll(scroll_int * 10) 
         scroll_remainder -= scroll_int
 
-
 def update_mouse_movement(angle_degrees, speed_px_per_sec):
     global remainder_x, remainder_y
     angle_radians = math.radians(angle_degrees)
@@ -82,51 +84,23 @@ def update_mouse_movement(angle_degrees, speed_px_per_sec):
 def volume_up(steps=1):
     if cfg.debug_mode:
         print(f"volume_up: steps={steps}")
-    try:
-        device = _get_volume_device()
-        if device is None:
-            return
-        current_vol = device.GetMasterVolume()
-        # Each step increases volume by 2% (0.02)
-        new_vol = min(1.0, current_vol + (steps * 0.02))
-        device.SetMasterVolume(new_vol, None)
-        if cfg.debug_mode:
-            print(f"volume_up: {current_vol:.2f} -> {new_vol:.2f}")
-    except Exception as e:
-        if cfg.debug_mode:
-            print(f"volume_up error: {e}")
+    for _ in range(int(steps)):
+        keyboard.press_and_release('volume up')
 
 def volume_down(steps=1):
     if cfg.debug_mode:
         print(f"volume_down: steps={steps}")
-    try:
-        device = _get_volume_device()
-        if device is None:
-            return
-        current_vol = device.GetMasterVolume()
-        # Each step decreases volume by 2% (0.02)
-        new_vol = max(0.0, current_vol - (steps * 0.02))
-        device.SetMasterVolume(new_vol, None)
-        if cfg.debug_mode:
-            print(f"volume_down: {current_vol:.2f} -> {new_vol:.2f}")
-    except Exception as e:
-        if cfg.debug_mode:
-            print(f"volume_down error: {e}")
+    for _ in range(int(steps)):
+        keyboard.press_and_release('volume down')
 
 def toggle_mute():
+    global last_mute_time
+    if time.time() - last_mute_time < 1.0:
+        return
     if cfg.debug_mode:
         print("toggle_mute")
-    try:
-        device = _get_volume_device()
-        if device is None:
-            return
-        is_muted = device.GetMute()
-        device.SetMute(not is_muted, None)
-        if cfg.debug_mode:
-            print(f"toggle_mute: {is_muted} -> {not is_muted}")
-    except Exception as e:
-        if cfg.debug_mode:
-            print(f"toggle_mute error: {e}")
+    keyboard.press_and_release('volume mute')
+    last_mute_time = time.time()
 
 def launch_voice_assistant():
     if cfg.debug_mode:
