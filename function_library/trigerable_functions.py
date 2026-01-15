@@ -10,9 +10,22 @@ from ctypes import cast, POINTER
 
 _volume_device = None
 
+def press_custom_key():
+    key = getattr(cfg, "custom_key", "") or ""
+    key = str(key).strip()
+    if cfg.debug_mode:
+        print(f"press_custom_key: cfg.custom_key={getattr(cfg, 'custom_key', None)!r} -> sending {key!r}")
+    if not key:
+        return
+    try:
+        keyboard.press_and_release(key)
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"press_custom_key error for {key!r}: {e}")
+
 def _get_volume_device():
     global _volume_device
-    if _volume_device is not None:
+    if (_volume_device is not None):
         return _volume_device
     try:
         devices = AudioUtilities.GetSpeakers()
@@ -55,7 +68,8 @@ def click_func(last_click_time):
     if cfg.debug_mode:
         print(f"Time since last click: {current_time - last_click_time:.2f} seconds")
     if current_time - last_click_time > 1:
-        pyautogui.click()  
+        pyautogui.click()
+        return current_time
     return last_click_time
     
 def right_click_func(last_click_time):
@@ -63,7 +77,8 @@ def right_click_func(last_click_time):
     if cfg.debug_mode:
         print(f"Time since last right click: {current_time - last_click_time:.2f} seconds")
     if current_time - last_click_time > 1:
-        pyautogui.rightClick()  
+        pyautogui.rightClick()
+        return current_time
     return last_click_time
 
 def next_song():
@@ -86,7 +101,8 @@ def double_click_func(last_click_time):
     if cfg.debug_mode:
         print(f"Time since last double click: {current_time - last_click_time:.2f} seconds")
     if current_time - last_click_time > 1:
-        pyautogui.doubleClick()  
+        pyautogui.doubleClick()
+        return current_time
     return last_click_time
 
 def minimize_window():
@@ -119,8 +135,16 @@ def update_scrolling(direction=1):
 def update_mouse_movement(angle_degrees, speed_px_per_sec):
     global remainder_x, remainder_y
     angle_radians = math.radians(angle_degrees)
-    dx_float = speed_px_per_sec * math.cos(angle_radians)
-    dy_float = -speed_px_per_sec * math.sin(angle_radians) 
+
+    try:
+        speed = float(speed_px_per_sec)
+    except Exception:
+        speed = float(getattr(cfg, "default_cursor_speed", 10))
+        if cfg.debug_mode:
+            print(f"update_mouse_movement: bad speed {speed_px_per_sec!r}, fallback={speed}")
+
+    dx_float = speed * math.cos(angle_radians)
+    dy_float = -speed * math.sin(angle_radians)
     remainder_x += dx_float
     remainder_y += dy_float
     move_int_x = int(remainder_x)

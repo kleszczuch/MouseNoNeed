@@ -29,7 +29,6 @@ import configuration.function_assigne.function_configuration as func_config
 from camera_library.recognition_main_loop import create_gesture_recognizer, to_mp_image
 from camera_library.camera_display import create_camera_capture
 
-# Paths
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_FILE = os.path.join(APP_DIR, "configuration", "configuration.json")
 FUNC_FILE = os.path.join(APP_DIR, "configuration", "function_assigne", "function_assigne.json")
@@ -211,8 +210,17 @@ class GestureCard(QFrame):
         layout.addWidget(left_label)
         
         layout.addStretch()
+
+        display_name = function_name
+        if function_name == "press_key":
+            k = getattr(cfg, "custom_key", None)
+            if not k and hasattr(parent, "settings_data"):
+                k = parent.settings_data.get("custom_key")
+            display_name = k or "Unassigned"
+        else:
+            display_name = display_name if display_name and display_name != "None" else "Unassigned"
         
-        func_label = QLabel(function_name if function_name and function_name != "None" else "Unassigned")
+        func_label = QLabel(display_name)
         func_label.setStyleSheet(f"color: {THEME['text_secondary']};")
         layout.addWidget(func_label)
         
@@ -224,6 +232,59 @@ class GestureCard(QFrame):
         """)
         edit_btn.clicked.connect(lambda: self.edit_clicked.emit(gesture_name))
         layout.addWidget(edit_btn)
+
+
+class KeyCaptureDialog(QDialog):
+    """
+    Modal dialog that captures the next key press and returns it in `self.captured_key`.
+    Stores key in `keyboard`-style names where possible (e.g. "space", "enter", "a").
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Press a key")
+        self.setModal(True)
+        self.captured_key = None
+
+        l = QVBoxLayout(self)
+        info = QLabel("Press any key to assign (e.g. Space).")
+        info.setStyleSheet(f"color: {THEME['text_primary']};")
+        l.addWidget(info)
+
+        hint = QLabel("Waiting for input...")
+        hint.setStyleSheet(f"color: {THEME['text_secondary']};")
+        l.addWidget(hint)
+
+        self.setMinimumWidth(320)
+
+    def keyPressEvent(self, event):
+        key = event.key()
+
+        if key == Qt.Key.Key_Space:
+            self.captured_key = "space"
+        elif key == Qt.Key.Key_Return or key == Qt.Key.Key_Enter:
+            self.captured_key = "enter"
+        elif key == Qt.Key.Key_Escape:
+            self.captured_key = "esc"
+        elif key == Qt.Key.Key_Tab:
+            self.captured_key = "tab"
+        elif key == Qt.Key.Key_Backspace:
+            self.captured_key = "backspace"
+        elif key == Qt.Key.Key_Delete:
+            self.captured_key = "delete"
+        else:
+            t = (event.text() or "").strip()
+            if t:
+                self.captured_key = t.lower()
+            else:
+                if Qt.Key.Key_F1 <= key <= Qt.Key.Key_F24:
+                    self.captured_key = f"f{key - Qt.Key.Key_F1 + 1}"
+                else:
+                    self.captured_key = None
+
+        if self.captured_key:
+            self.accept()
+        else:
+            event.ignore()
 
 
 class MainWindow(QMainWindow):
@@ -345,8 +406,8 @@ class MainWindow(QMainWindow):
         self.add_setting_row(sett_layout, "Cam Height (Crop)", "camera_height_crop")
         self.add_setting_combo(sett_layout, "Main Hand", "main_hand", ["Left", "Right"])
         self.add_setting_bool(sett_layout, "Debug Mode", "debug_mode")
+        self.add_setting_row(sett_layout, "Custom Key (e.g. space)", "custom_key")
         
-        # Add Save Settings button
         save_btn_layout = QHBoxLayout()
         save_btn_layout.addStretch()
         save_btn = QPushButton("Save Settings")
@@ -394,30 +455,53 @@ class MainWindow(QMainWindow):
         funcs = self.gestures_data.get(self.current_hand, {})
         for name in GESTURE_NAMES:
             assigned = funcs.get(name, "None")
-            card = GestureCard(name, assigned)
+            card = GestureCard(name, assigned, parent=self)
             card.edit_clicked.connect(self.edit_gesture)
             self.gestures_list_layout.addWidget(card)
 
     def edit_gesture(self, gesture_name):
         current_val = self.gestures_data.get(self.current_hand, {}).get(gesture_name, "None")
-        
+
         dlg = QDialog(self)
         dlg.setWindowTitle(f"Edit {gesture_name}")
         l = QVBoxLayout(dlg)
-        
+
         combo = QComboBox()
-        options = ["None", "click_func", "right_click_func", "apply_boost", "volume_up", "volume_down", "toggle_mute", 
-                   "voice_assistant", "osk", "update_scrolling up", "update_scrolling down", "next_song", "previous_song", "play_pause_music", "double_click_func", "minimize_window", "maximize_window"]
+        options = [
+            "None",
+            "click_func", "right_click_func", "apply_boost",
+            "volume_up", "volume_down", "toggle_mute",
+            "voice_assistant", "osk",
+            "update_scrolling up", "update_scrolling down",
+            "next_song", "previous_song", "play_pause_music",
+            "double_click_func", "minimize_window", "maximize_window",
+            "press_key",
+        ]
         combo.addItems(options)
         combo.setCurrentText(current_val if current_val in options else "None")
         l.addWidget(combo)
-        
+
         btns = QHBoxLayout()
         ok = QPushButton("OK")
-        ok.clicked.connect(dlg.accept)
+
+        def on_ok():
+            new_val = combo.currentText()
+
+            if new_val == "press_key":
+                cap = KeyCaptureDialog(self)
+                if cap.exec() and cap.captured_key:
+                    self.settings_data["custom_key"] = cap.captured_key
+                    self.save_settings()
+                    if hasattr(cfg, "custom_key"):
+                        setattr(cfg, "custom_key", cap.captured_key)
+                    self.refresh_gestures_list()
+
+            dlg.accept()
+
+        ok.clicked.connect(on_ok)
         btns.addWidget(ok)
         l.addLayout(btns)
-        
+
         if dlg.exec():
             new_val = combo.currentText()
             if self.current_hand not in self.gestures_data:
@@ -459,19 +543,29 @@ class MainWindow(QMainWindow):
         parent_layout.addLayout(row)
 
     def update_setting(self, key, value):
+            _INT_KEYS = {"cursor_speed", "default_cursor_speed", "scroll_speed", "default_scroll_speed",
+                         "camera_width_default", "camera_height_default", "camera_width_crop", "camera_height_crop",
+                         "camera_index", "thickness"}
+            _FLOAT_KEYS = {"speed_boost_factor", "font_scale", "last_click_time"}
+
+            if key in _INT_KEYS:
+                try:
+                    value = int(value)
+                except Exception:
+                    pass
+            elif key in _FLOAT_KEYS:
+                try:
+                    value = float(value)
+                except Exception:
+                    pass
+
             current_val = self.settings_data.get(key)
             if isinstance(current_val, bool):
                 value = bool(value)
-            elif isinstance(current_val, int):
-                try: value = int(value)
-                except: pass
-            elif isinstance(current_val, float):
-                try: value = float(value)
-                except: pass
-                
+
             self.settings_data[key] = value
             self.save_settings()
-            
+
             if hasattr(cfg, key):
                 setattr(cfg, key, value)
 
@@ -486,5 +580,6 @@ def runAPP():
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
 
 

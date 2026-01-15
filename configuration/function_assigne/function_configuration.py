@@ -1,5 +1,5 @@
 import json
-from pyparsing import Path
+from pathlib import Path
 from configuration.configuration import cfg
 from function_library.trigerable_functions import (
     click_func,
@@ -14,7 +14,7 @@ from function_library.trigerable_functions import (
     next_song,
     previous_song,
     play_pause_music,
-
+    press_custom_key,
 )
 
 FUNC_FILE = Path(__file__).with_name("function_assigne.json")
@@ -35,7 +35,7 @@ def _resolve_hand_key(hand_label):
 
 def select_and_call_func(gesture, hand_label, finger_gesture_text=""):
     hand_key = _resolve_hand_key(hand_label)
-    if hand_key is None:
+    if (hand_key is None):
         return False
 
     gesture_key = finger_gesture_text or (getattr(gesture, "category_name", "") if gesture else "")
@@ -86,7 +86,8 @@ def call_function(func_name):
     elif func_name == "play_pause_music":
         play_pause_music()
         return False
-    
+    elif func_name == "press_key":
+        press_custom_key()
+        return False
     else:
         return False
-    # Add any new functions here as needed

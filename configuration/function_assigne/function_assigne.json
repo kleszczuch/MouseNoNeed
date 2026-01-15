@@ -13,9 +13,10 @@
                 "Thumb_Up": "None",
                 "ILoveYou": "None",
                 "Thumb+Index": "None",
-                "Thumb+Middle": "None",
+                "Thumb+Middle": "press_key",
                 "Thumb+Ring": "None",
-                "Thumb+Pinky": "voice_assistant"
+                "Thumb+Pinky": "voice_assistant",
+                "pointer": "None"
             }
         ]
     },
