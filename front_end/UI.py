@@ -13,16 +13,18 @@ import winreg
 try:
     from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal
     from PyQt6.QtGui import QColor, QImage, QPixmap, QPalette
+    from PyQt6.QtMultimedia import QMediaDevices
     from PyQt6.QtWidgets import (
         QApplication, QMainWindow, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
         QScrollArea, QFrame, QLineEdit, QDialog, QGraphicsDropShadowEffect,
-        QCheckBox, QComboBox
+        QCheckBox, QComboBox, QMessageBox
     )
 except ImportError:
     print("PyQt6 required: pip install PyQt6")
     sys.exit(1)
 
 from configuration.configuration import cfg
+from function_library.trigerable_functions import record_key_press
 from camera_library.hand_croper import HandCropper
 from hand_recognition.hand_processing import process_hands
 import configuration.function_assigne.function_configuration as func_config
@@ -240,6 +242,14 @@ class MainWindow(QMainWindow):
         
         self.setup_ui()
 
+    def get_cameras(self):
+        try:
+            cameras = QMediaDevices.videoInputs()
+            return [(i, cam.description()) for i, cam in enumerate(cameras)]
+        except Exception as e:
+            print(f"Error getting cameras: {e}")
+            return [(i, f"Camera {i}") for i in range(5)]
+
     def load_gestures(self):
         if os.path.exists(FUNC_FILE):
             try:
@@ -341,6 +351,7 @@ class MainWindow(QMainWindow):
         self.add_setting_row(sett_layout, "Cursor Speed", "cursor_speed")
         self.add_setting_row(sett_layout, "Scroll Speed", "scroll_speed")
         self.add_setting_row(sett_layout, "Boost Factor", "speed_boost_factor")
+        self.add_camera_selection_row(sett_layout, "Camera Source", "camera_index")
         self.add_setting_row(sett_layout, "Cam Width (Crop)", "camera_width_crop")
         self.add_setting_row(sett_layout, "Cam Height (Crop)", "camera_height_crop")
         self.add_setting_combo(sett_layout, "Main Hand", "main_hand", ["Left", "Right"])
@@ -407,7 +418,8 @@ class MainWindow(QMainWindow):
         
         combo = QComboBox()
         options = ["None", "click_func", "right_click_func", "apply_boost", "volume_up", "volume_down", "toggle_mute", 
-                   "voice_assistant", "osk", "update_scrolling up", "update_scrolling down", "next_song", "previous_song", "play_pause_music", "double_click_func", "minimize_window", "maximize_window"]
+                   "voice_assistant", "osk", "update_scrolling up", "update_scrolling down", "next_song", "previous_song", 
+                   "play_pause_music", "double_click_func", "minimize_window", "maximize_window", "custom_hotkey"]
         combo.addItems(options)
         combo.setCurrentText(current_val if current_val in options else "None")
         l.addWidget(combo)
@@ -420,6 +432,30 @@ class MainWindow(QMainWindow):
         
         if dlg.exec():
             new_val = combo.currentText()
+
+            if new_val == "custom_hotkey":
+                QMessageBox.information(self, "Custom Hotkey", "Click OK, then press the key you want to bind.")
+                QApplication.processEvents()
+                
+                detected_key = record_key_press()
+                
+                if detected_key:
+                    hotkey_name = detected_key
+      
+                    if "custom_hotkeys" not in self.settings_data:
+                        self.settings_data["custom_hotkeys"] = {}
+                    self.settings_data["custom_hotkeys"][hotkey_name] = detected_key
+                    self.save_settings()
+
+                    if hasattr(cfg, "custom_hotkeys"):
+                        cfg.custom_hotkeys[hotkey_name] = detected_key
+                        
+                    new_val = f"custom_hotkey:{hotkey_name}"
+                    QMessageBox.information(self, "Success", f"Custom hotkey '{hotkey_name}' saved.")
+                else:
+                    QMessageBox.warning(self, "Timeout", "No key press detected.")
+                    return
+
             if self.current_hand not in self.gestures_data:
                 self.gestures_data[self.current_hand] = {}
             self.gestures_data[self.current_hand][gesture_name] = new_val
@@ -455,6 +491,41 @@ class MainWindow(QMainWindow):
         combo.setCurrentText(str(self.settings_data.get(key, options[0])))
         combo.setStyleSheet(f"background: {THEME['input_bg']}; color: {THEME['text_primary']}; border: 1px solid {THEME['input_border']}; border-radius: 3px; padding: 3px;")
         combo.currentTextChanged.connect(lambda: self.update_setting(key, combo.currentText()))
+        row.addWidget(combo)
+        parent_layout.addLayout(row)
+
+    def add_camera_selection_row(self, parent_layout, label_text, key):
+        row = QHBoxLayout()
+        lbl = QLabel(label_text)
+        lbl.setStyleSheet(f"color: {THEME['text_primary']};")
+        row.addWidget(lbl)
+        
+        cameras = self.get_cameras()
+        if not cameras:
+            cameras = [(0, "Default Camera")]
+            
+        combo = QComboBox()
+        for i, name in cameras:
+            combo.addItem(name, i) 
+            
+        current_idx = self.settings_data.get(key, 0)
+        found = False
+        for i in range(combo.count()):
+            if combo.itemData(i) == current_idx:
+                combo.setCurrentIndex(i)
+                found = True
+                break
+        if not found and combo.count() > 0:
+             combo.setCurrentIndex(0)
+
+        combo.setStyleSheet(f"background: {THEME['input_bg']}; color: {THEME['text_primary']}; border: 1px solid {THEME['input_border']}; border-radius: 3px; padding: 3px;")
+        
+        def on_change(idx):
+             cam_id = combo.itemData(idx)
+             self.update_setting(key, cam_id)
+             
+        combo.currentIndexChanged.connect(on_change)
+        
         row.addWidget(combo)
         parent_layout.addLayout(row)
 
