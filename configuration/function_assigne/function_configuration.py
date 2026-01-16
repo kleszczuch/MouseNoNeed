@@ -14,7 +14,8 @@ from function_library.trigerable_functions import (
     next_song,
     previous_song,
     play_pause_music,
-
+    record_key_press,
+    press_custom_key,
 )
 
 FUNC_FILE = Path(__file__).with_name("function_assigne.json")
@@ -86,7 +87,51 @@ def call_function(func_name):
     elif func_name == "play_pause_music":
         play_pause_music()
         return False
-    
+    elif func_name.startswith("custom_hotkey:"):
+        # custom_hotkey:hotkey_name
+        hotkey_name = func_name.split(":", 1)[1]
+        register_or_execute_custom_hotkey(hotkey_name)
+        return False
     else:
         return False
     # Add any new functions here as needed
+
+
+def register_or_execute_custom_hotkey(hotkey_name):
+    if hotkey_name in cfg.custom_hotkeys and cfg.custom_hotkeys[hotkey_name]:
+        # Klawisz już jest zarejestrowany
+        key = cfg.custom_hotkeys[hotkey_name]
+        if cfg.debug_mode:
+            print(f"Wykonywanie zarejestrowanego hotkey '{hotkey_name}': {key}")
+        press_custom_key(key)
+    else:
+        # Klawisz nie jest zarejestrowany
+        if cfg.debug_mode:
+            print(f"Rejestracja nowego hotkey '{hotkey_name}'")
+        print(f"[Custom Hotkey] Naciśnij klawisz dla '{hotkey_name}'...")
+        recorded_key = record_key_press()
+        
+        if recorded_key:
+            cfg.custom_hotkeys[hotkey_name] = recorded_key
+            _save_custom_hotkeys()
+            if cfg.debug_mode:
+                print(f"Hotkey '{hotkey_name}' zarejestrowany jako: {recorded_key}")
+            print(f"[Custom Hotkey] '{hotkey_name}' ustawiony na: {recorded_key}")
+
+
+def _save_custom_hotkeys():
+    try:
+        config_path = Path("configuration/configuration.json")
+        with open(config_path, "r", encoding="utf-8") as f:
+            config_data = json.load(f)
+        
+        config_data["custom_hotkeys"] = cfg.custom_hotkeys
+        
+        with open(config_path, "w", encoding="utf-8") as f:
+            json.dump(config_data, f, indent=4, ensure_ascii=False)
+        
+        if cfg.debug_mode:
+            print("Custom hotkeys zapisane do configuration.json")
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"Błąd przy zapisywaniu custom hotkeys: {e}")

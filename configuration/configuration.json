@@ -11,8 +11,11 @@
     "camera_width_crop": 800,
     "camera_height_crop": 480,
     "last_click_time": 0.0,
-    "camera_index": 1,
+    "camera_index": 0,
     "font_scale": 0.8,
     "thickness": 2,
-    "debug_mode": false
+    "debug_mode": false,
+    "custom_hotkeys": {
+        "test": "n"
+    }
 }

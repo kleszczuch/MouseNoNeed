@@ -172,3 +172,25 @@ def open_on_screen_keyboard():
     except Exception as e:
         if cfg.debug_mode:
             print(f"open_on_screen_keyboard error: {e}")
+
+def record_key_press(timeout=10):
+    if cfg.debug_mode:
+        print(f"record_key_press: Oczekiwanie na naciśnięcie klawisza... (timeout: {timeout}s)")
+    try:
+        key = keyboard.read_key(suppress=False)
+        if cfg.debug_mode:
+            print(f"record_key_press: Zarejestrowany klawisz: {key}")
+        return key
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"record_key_press error: {e}")
+        return None
+
+def press_custom_key(key_name):
+    if cfg.debug_mode:
+        print(f"press_custom_key: Naciskanie {key_name}")
+    try:
+        keyboard.press_and_release(key_name)
+    except Exception as e:
+        if cfg.debug_mode:
+            print(f"press_custom_key error: {e}")

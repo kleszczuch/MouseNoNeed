@@ -25,6 +25,7 @@ class Config:
     font_scale: float = settings["font_scale"]
     thickness: int = settings["thickness"]
     debug_mode: bool = settings.get("debug_mode", False)
+    custom_hotkeys: dict = field(default_factory=lambda: settings.get("custom_hotkeys", {}))
     
     MODEL_FILENAME: str = "configuration/gesture_recognizer.task"
     font: int = cv2.FONT_HERSHEY_SIMPLEX

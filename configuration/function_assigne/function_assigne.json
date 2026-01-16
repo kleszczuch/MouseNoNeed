@@ -32,7 +32,7 @@
                 "Thumb_Down": "volume_down",
                 "Thumb_Up": "volume_up",
                 "ILoveYou": "toggle_mute",
-                "Thumb+Index": "None",
+                "Thumb+Index": "custom_hotkey:test",
                 "Thumb+Middle": "None",
                 "Thumb+Ring": "maximize_window",
                 "Thumb+Pinky": "minimize_window"
