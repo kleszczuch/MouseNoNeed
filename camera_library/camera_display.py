@@ -1,12 +1,18 @@
 import cv2
+import platform
 from configuration.configuration import cfg
 from mediapipe.framework.formats import landmark_pb2
 
 
 def create_camera_capture():
-    cap = cv2.VideoCapture(cfg.camera_index, cv2.CAP_DSHOW)
+    if platform.system() == "Windows":
+        cap = cv2.VideoCapture(cfg.camera_index, cv2.CAP_DSHOW)
+    else:
+        cap = cv2.VideoCapture(cfg.camera_index)
+    
     if not cap.isOpened():
         print("Unable to open camera.")
+        print(f"Camera index: {cfg.camera_index}, Platform: {platform.system()}")
         return None
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, cfg.camera_width_default)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cfg.camera_height_default)

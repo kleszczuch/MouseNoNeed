@@ -1,5 +1,5 @@
 {
-    "cursor_speed": "20",
+    "cursor_speed": 20,
     "main_hand": "Right",
     "default_cursor_speed": 10,
     "speed_boost_factor": 5.0,

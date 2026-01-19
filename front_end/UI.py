@@ -8,7 +8,10 @@ import mediapipe as mp
 from mediapipe.tasks import python as mp_tasks_python
 from mediapipe.tasks.python import vision as mp_tasks_vision
 from typing import Dict
-import winreg
+import platform
+
+if platform.system() == "Windows":
+    import winreg
 
 try:
     from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal
@@ -31,21 +34,41 @@ import configuration.function_assigne.function_configuration as func_config
 from camera_library.recognition_main_loop import create_gesture_recognizer, to_mp_image
 from camera_library.camera_display import create_camera_capture
 
-# Paths
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_FILE = os.path.join(APP_DIR, "configuration", "configuration.json")
 FUNC_FILE = os.path.join(APP_DIR, "configuration", "function_assigne", "function_assigne.json")
 MODEL_PATH = os.path.join(APP_DIR, cfg.MODEL_FILENAME)
 
 def detect_system_theme():
-    """Detect if Windows is in dark mode."""
-    try:
-        registry_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-        registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path)
-        value, regtype = winreg.QueryValueEx(registry_key, "AppsUseLightTheme")
-        winreg.CloseKey(registry_key)
-        return "light" if value == 1 else "dark"
-    except Exception:
+    system = platform.system()
+    
+    if system == "Windows":
+        try:
+            registry_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+            registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path)
+            value, regtype = winreg.QueryValueEx(registry_key, "AppsUseLightTheme")
+            winreg.CloseKey(registry_key)
+            return "light" if value == 1 else "dark"
+        except Exception:
+            return "dark"
+    
+    elif system == "Darwin":
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["defaults", "read", "-g", "AppleInterfaceStyle"],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+            if result.returncode == 0 and "Dark" in result.stdout:
+                return "dark"
+            else:
+                return "light"
+        except Exception:
+            return "dark"
+    
+    else:
         return "dark"
 
 SYSTEM_THEME = detect_system_theme()
@@ -89,6 +112,14 @@ THEMES = {
 }
 
 THEME = THEMES[SYSTEM_THEME]
+
+if platform.system() == "Darwin" and IS_DARK_MODE:
+    THEME["bg_primary"] = "#2a2a2a"
+    THEME["bg_secondary"] = "#3a3a3a"
+    THEME["border_light"] = "#4a4a4a"
+    THEME["camera_bg"] = "#1a1a1a"
+    THEME["camera_border"] = "#2a2a2a"
+    THEME["text_secondary"] = "#d0d0d0"
 
 GESTURE_NAMES = [
     "pointer", "2 fingers: Up", "2 fingers: Down", "Closed_Fist", "Open_Palm",
@@ -239,8 +270,112 @@ class MainWindow(QMainWindow):
         
         self.camera_thread = None
         self.current_hand = "Main"
+        self.help_dialog = None
         
         self.setup_ui()
+    
+    def show_help(self):
+        if self.help_dialog is None:
+            self.help_dialog = QDialog(self)
+            self.help_dialog.setWindowTitle("MouseNoNeed - Help & Guide")
+            self.help_dialog.setGeometry(100, 100, 700, 700)
+            
+            layout = QVBoxLayout(self.help_dialog)
+            
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            
+            content_label = QLabel()
+            content_label.setWordWrap(True)
+            content_label.setAlignment(Qt.AlignmentFlag.AlignTop)
+            content_label.setStyleSheet(f"""
+                color: {THEME['text_primary']};
+                padding: 15px;
+                line-height: 1.6;
+            """)
+            
+            readme_path = os.path.join(APP_DIR, "README.md")
+            readme_content = "No README found"
+            
+            if os.path.exists(readme_path):
+                try:
+                    with open(readme_path, 'r', encoding='utf-8') as f:
+                        readme_content = f.read()
+                        readme_content = self.markdown_to_html(readme_content)
+                except Exception as e:
+                    readme_content = f"Error reading README: {str(e)}"
+            
+            content_label.setText(readme_content)
+            scroll.setWidget(content_label)
+            
+            scroll.setStyleSheet(f"""
+                QScrollArea {{
+                    background: {THEME['bg_secondary']};
+                    border: 1px solid {THEME['border_light']};
+                    border-radius: 4px;
+                }}
+                QScrollBar {{
+                    width: 8px;
+                }}
+                QScrollBar::handle {{
+                    background: {THEME['border_light']};
+                    border-radius: 4px;
+                }}
+            """)
+            
+            layout.addWidget(scroll, 1)
+            
+            close_btn = QPushButton("Close")
+            close_btn.clicked.connect(self.help_dialog.close)
+            close_btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: {THEME['button_bg']};
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    font-weight: 600;
+                }}
+                QPushButton:hover {{
+                    background: {THEME['button_hover']};
+                }}
+            """)
+            layout.addWidget(close_btn)
+            
+            self.help_dialog.setStyleSheet(f"""
+                QDialog {{
+                    background: {THEME['bg_primary']};
+                }}
+            """)
+        
+        self.help_dialog.show()
+        self.help_dialog.raise_()
+        self.help_dialog.activateWindow()
+    
+    def markdown_to_html(self, markdown_text):
+        lines = markdown_text.split('\n')
+        html_lines = []
+        
+        for line in lines:
+            if line.startswith('# '):
+                html_lines.append(f"<h1>{line[2:]}</h1>")
+            elif line.startswith('## '):
+                html_lines.append(f"<h2>{line[3:]}</h2>")
+            elif line.startswith('### '):
+                html_lines.append(f"<h3>{line[4:]}</h3>")
+            elif '**' in line:
+                line = line.replace('**', '<b>', 1).replace('**', '</b>', 1)
+                html_lines.append(f"<p>{line}</p>")
+            elif line.startswith('- '):
+                html_lines.append(f"<li>{line[2:]}</li>")
+            elif line.startswith('```'):
+                continue
+            elif not line.strip():
+                html_lines.append("<br>")
+            else:
+                if line.strip():
+                    html_lines.append(f"<p>{line}</p>")
+        
+        return ''.join(html_lines)
 
     def get_cameras(self):
         try:
@@ -301,6 +436,40 @@ class MainWindow(QMainWindow):
         
         cam_container = DarkCameraPanel()
         cam_layout = QVBoxLayout(cam_container)
+        cam_layout.setContentsMargins(0, 0, 0, 0)
+        cam_layout.setSpacing(0)
+        
+        # Camera header with help button
+        cam_header = QWidget()
+        cam_header_layout = QHBoxLayout(cam_header)
+        cam_header_layout.setContentsMargins(12, 12, 12, 0)
+        
+        # Help button (circular/oval style)
+        self.help_btn = QPushButton("?")
+        self.help_btn.setMaximumSize(40, 40)
+        self.help_btn.setMinimumSize(40, 40)
+        self.help_btn.clicked.connect(self.show_help)
+        self.help_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {THEME['button_bg']};
+                color: white;
+                border: none;
+                border-radius: 20px;
+                font-size: 18px;
+                font-weight: 700;
+                padding: 0px;
+            }}
+            QPushButton:hover {{
+                background: {THEME['button_hover']};
+            }}
+            QPushButton:pressed {{
+                background: #004085;
+            }}
+        """)
+        cam_header_layout.addWidget(self.help_btn, 0, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        cam_header_layout.addStretch()
+        
+        cam_layout.addWidget(cam_header)
         
         self.cam_label = QLabel("Camera Output")
         self.cam_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -319,13 +488,16 @@ class MainWindow(QMainWindow):
         
         main_layout.addWidget(cam_container, 2)
         
-        right_scroll = QScrollArea()
-        right_scroll.setWidgetResizable(True)
-        right_widget = QWidget()
-        right_layout = QVBoxLayout(right_widget)
+        # Right side container with equal-sized panels
+        right_container = QWidget()
+        right_main_layout = QVBoxLayout(right_container)
+        right_main_layout.setContentsMargins(0, 0, 0, 0)
+        right_main_layout.setSpacing(8)
         
+        # GESTURES PANEL with internal scroll
         gest_panel = BorderedPanel()
         gest_layout = QVBoxLayout(gest_panel)
+        gest_layout.setContentsMargins(12, 12, 12, 12)
         
         h_layout = QHBoxLayout()
         title_label = QLabel("<b>Gestures</b>")
@@ -336,28 +508,63 @@ class MainWindow(QMainWindow):
         h_layout.addWidget(self.hand_btn)
         gest_layout.addLayout(h_layout)
         
-        self.gestures_list_layout = QVBoxLayout()
-        gest_layout.addLayout(self.gestures_list_layout)
+        # Scroll area for gestures content
+        gest_scroll = QScrollArea()
+        gest_scroll.setWidgetResizable(True)
+        gest_scroll.setStyleSheet(f"""
+            QScrollArea {{ background: {THEME['bg_secondary']}; border: none; }}
+            QScrollBar {{ width: 8px; }}
+            QScrollBar::handle {{ background: {THEME['border_light']}; border-radius: 4px; }}
+        """)
+        
+        gest_scroll_widget = QWidget()
+        self.gestures_list_layout = QVBoxLayout(gest_scroll_widget)
+        self.gestures_list_layout.setContentsMargins(0, 0, 0, 0)
         self.refresh_gestures_list()
+        self.gestures_list_layout.addStretch()
         
-        right_layout.addWidget(gest_panel)
+        gest_scroll.setWidget(gest_scroll_widget)
+        gest_layout.addWidget(gest_scroll, 1)
         
+        right_main_layout.addWidget(gest_panel, 1)
+        
+        # SETTINGS PANEL with internal scroll
         sett_panel = BorderedPanel()
         sett_layout = QVBoxLayout(sett_panel)
+        sett_layout.setContentsMargins(12, 12, 12, 12)
+        
         settings_label = QLabel("<b>Settings</b>")
         settings_label.setStyleSheet(f"color: {THEME['text_primary']};")
         sett_layout.addWidget(settings_label)
         
-        self.add_setting_row(sett_layout, "Cursor Speed", "cursor_speed")
-        self.add_setting_row(sett_layout, "Scroll Speed", "scroll_speed")
-        self.add_setting_row(sett_layout, "Boost Factor", "speed_boost_factor")
-        self.add_camera_selection_row(sett_layout, "Camera Source", "camera_index")
-        self.add_setting_row(sett_layout, "Cam Width (Crop)", "camera_width_crop")
-        self.add_setting_row(sett_layout, "Cam Height (Crop)", "camera_height_crop")
-        self.add_setting_combo(sett_layout, "Main Hand", "main_hand", ["Left", "Right"])
-        self.add_setting_bool(sett_layout, "Debug Mode", "debug_mode")
+        # Scroll area for settings content
+        sett_scroll = QScrollArea()
+        sett_scroll.setWidgetResizable(True)
+        sett_scroll.setStyleSheet(f"""
+            QScrollArea {{ background: {THEME['bg_secondary']}; border: none; }}
+            QScrollBar {{ width: 8px; }}
+            QScrollBar::handle {{ background: {THEME['border_light']}; border-radius: 4px; }}
+        """)
         
-        # Add Save Settings button
+        sett_scroll_widget = QWidget()
+        sett_content_layout = QVBoxLayout(sett_scroll_widget)
+        sett_content_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.add_setting_row(sett_content_layout, "Cursor Speed", "cursor_speed")
+        self.add_setting_row(sett_content_layout, "Scroll Speed", "scroll_speed")
+        self.add_setting_row(sett_content_layout, "Boost Factor", "speed_boost_factor")
+        self.add_camera_selection_row(sett_content_layout, "Camera Source", "camera_index")
+        self.add_setting_row(sett_content_layout, "Cam Width (Crop)", "camera_width_crop")
+        self.add_setting_row(sett_content_layout, "Cam Height (Crop)", "camera_height_crop")
+        self.add_setting_combo(sett_content_layout, "Main Hand", "main_hand", ["Left", "Right"])
+        self.add_setting_bool(sett_content_layout, "Debug Mode", "debug_mode")
+        
+        sett_content_layout.addStretch()
+        
+        sett_scroll.setWidget(sett_scroll_widget)
+        sett_layout.addWidget(sett_scroll, 1)
+        
+        # Add Save Settings button (stays at bottom of settings panel)
         save_btn_layout = QHBoxLayout()
         save_btn_layout.addStretch()
         save_btn = QPushButton("Save Settings")
@@ -366,10 +573,9 @@ class MainWindow(QMainWindow):
         save_btn_layout.addWidget(save_btn)
         sett_layout.addLayout(save_btn_layout)
         
-        right_layout.addWidget(sett_panel)
+        right_main_layout.addWidget(sett_panel, 1)
         
-        right_scroll.setWidget(right_widget)
-        main_layout.addWidget(right_scroll, 1)
+        main_layout.addWidget(right_container, 1)
         
         self.setCentralWidget(central)
 
