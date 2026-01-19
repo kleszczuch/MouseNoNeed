@@ -5,8 +5,11 @@ import math
 import subprocess
 import os
 import keyboard
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+import platform
 from ctypes import cast, POINTER
+
+if platform.system() == "Windows":
+    from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 _volume_device = None
 
@@ -14,10 +17,10 @@ def _get_volume_device():
     global _volume_device
     if _volume_device is not None:
         return _volume_device
+    if platform.system() != "Windows":
+        return None
     try:
         devices = AudioUtilities.GetSpeakers()
-        # interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-        # _volume_device = cast(interface, POINTER(IAudioEndpointVolume))
         _volume_device = devices.EndpointVolume
         return _volume_device
     except Exception as e:
@@ -25,7 +28,6 @@ def _get_volume_device():
             print(f"_get_volume_device error: {e}")
         return None
 
-# PyAutoGUI configuration
 pyautogui.FAILSAFE = False
 pyautogui.PAUSE = 0
 
@@ -69,17 +71,20 @@ def right_click_func(last_click_time):
 def next_song():
     if cfg.debug_mode:
         print("next_song")
-    keyboard.press_and_release('media next')
+    if platform.system() == "Windows":
+        keyboard.press_and_release('media next')
 
 def previous_song():
     if cfg.debug_mode:
         print("previous_song")
-    keyboard.press_and_release('media previous')
+    if platform.system() == "Windows":
+        keyboard.press_and_release('media previous')
 
 def play_pause_music():
     if cfg.debug_mode:
         print("play_pause_music")
-    keyboard.press_and_release('media play/pause')
+    if platform.system() == "Windows":
+        keyboard.press_and_release('media play/pause')
 
 def double_click_func(last_click_time):
     current_time = time.time()
@@ -91,18 +96,30 @@ def double_click_func(last_click_time):
 
 def minimize_window():
     if cfg.debug_mode:
-        print("minimize_window: sending Win+Down")
+        if platform.system() == "Windows":
+            print("minimize_window: sending Win+Down")
+        else:
+            print("minimize_window: sending Cmd+M")
     try:
-        keyboard.press_and_release('win+down')
+        if platform.system() == "Windows":
+            keyboard.press_and_release('win+down')
+        elif platform.system() == "Darwin":
+            keyboard.press_and_release('cmd+m')
     except Exception as e:
         if cfg.debug_mode:
             print(f"minimize_window error: {e}")
 
 def maximize_window():
     if cfg.debug_mode:
-        print("maximize_window: sending Win+Up")
+        if platform.system() == "Windows":
+            print("maximize_window: sending Win+Up")
+        else:
+            print("maximize_window: sending Cmd+Ctrl+F")
     try:
-        keyboard.press_and_release('win+up')
+        if platform.system() == "Windows":
+            keyboard.press_and_release('win+up')
+        elif platform.system() == "Darwin":
+            keyboard.press_and_release('cmd+ctrl+f')
     except Exception as e:
         if cfg.debug_mode:
             print(f"maximize_window error: {e}")
@@ -133,14 +150,16 @@ def update_mouse_movement(angle_degrees, speed_px_per_sec):
 def volume_up(steps=1):
     if cfg.debug_mode:
         print(f"volume_up: steps={steps}")
-    for _ in range(int(steps)):
-        keyboard.press_and_release('volume up')
+    if platform.system() == "Windows":
+        for _ in range(int(steps)):
+            keyboard.press_and_release('volume up')
 
 def volume_down(steps=1):
     if cfg.debug_mode:
         print(f"volume_down: steps={steps}")
-    for _ in range(int(steps)):
-        keyboard.press_and_release('volume down')
+    if platform.system() == "Windows":
+        for _ in range(int(steps)):
+            keyboard.press_and_release('volume down')
 
 def toggle_mute():
     global last_mute_time
@@ -148,27 +167,40 @@ def toggle_mute():
         return
     if cfg.debug_mode:
         print("toggle_mute")
-    keyboard.press_and_release('volume mute')
+    if platform.system() == "Windows":
+        keyboard.press_and_release('volume mute')
     last_mute_time = time.time()
 
 def launch_voice_assistant():
     if cfg.debug_mode:
-        print("launch_voice_assistant: sending Win+H")
+        if platform.system() == "Windows":
+            print("launch_voice_assistant: sending Win+H")
+        elif platform.system() == "Darwin":
+            print("launch_voice_assistant: opening Siri with Cmd+Space")
+        else:
+            print("launch_voice_assistant: not supported on this platform")
     try:
-        keyboard.press_and_release('win+h')
+        if platform.system() == "Windows":
+            keyboard.press_and_release('win+h')
+        elif platform.system() == "Darwin":
+            keyboard.press_and_release('cmd+space')
     except Exception as e:
         if cfg.debug_mode:
             print(f"launch_voice_assistant error: {e}")
 
 def open_on_screen_keyboard():
     if cfg.debug_mode:
-        print("open_on_screen_keyboard: launching osk.exe")
-    try:
-        if os.name == 'nt':
-            subprocess.Popen("osk.exe", shell=True)
+        if platform.system() == "Windows":
+            print("open_on_screen_keyboard: launching osk.exe")
+        elif platform.system() == "Darwin":
+            print("open_on_screen_keyboard: opening Keyboard Viewer on macOS")
         else:
-            if cfg.debug_mode:
-                print("On-screen keyboard is only supported on Windows via osk.exe")
+            print("open_on_screen_keyboard: not supported on this platform")
+    try:
+        if platform.system() == "Windows":
+            subprocess.Popen("osk.exe", shell=True)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", "-a", "Keyboard Viewer"])
     except Exception as e:
         if cfg.debug_mode:
             print(f"open_on_screen_keyboard error: {e}")
@@ -176,6 +208,12 @@ def open_on_screen_keyboard():
 def record_key_press(timeout=10):
     if cfg.debug_mode:
         print(f"record_key_press: Oczekiwanie na naciśnięcie klawisza... (timeout: {timeout}s)")
+    
+    if platform.system() != "Windows":
+        if cfg.debug_mode:
+            print("record_key_press: Not supported on this platform, returning None")
+        return None
+    
     try:
         key = keyboard.read_key(suppress=False)
         if cfg.debug_mode:
