@@ -10,7 +10,7 @@ settings = json.load(open(configuration_file_path))
 @dataclass
 class Config:
     cursor_speed: int = settings["cursor_speed"]
-    main_hand: str = settings["main_hand"]
+    _main_hand: str = field(default=settings["main_hand"], init=False)
     default_cursor_speed: int = settings["default_cursor_speed"]
     speed_boost_factor: float = settings["speed_boost_factor"]
     scroll_speed: int = settings["scroll_speed"]
@@ -36,7 +36,20 @@ class Config:
     off_hand: str = field(init=False)
 
     def __post_init__(self):
-        if self.main_hand == "Right":
+        self._main_hand = settings["main_hand"]
+        self._update_off_hand()
+    
+    @property
+    def main_hand(self):
+        return self._main_hand
+    
+    @main_hand.setter
+    def main_hand(self, value):
+        self._main_hand = value
+        self._update_off_hand()
+    
+    def _update_off_hand(self):
+        if self._main_hand == "Right":
             self.off_hand = "Left"
         else:
             self.off_hand = "Right"

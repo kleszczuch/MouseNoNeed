@@ -107,7 +107,9 @@ def previous_song(last_click_time=None):
             except Exception as e:
                 if cfg.debug_mode:
                     print(f"previous_song error: {e}")
-        return current_time
+        return
+      
+        current_time
     return last_click_time
 
 def play_pause_music(last_click_time=None):
