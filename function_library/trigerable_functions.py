@@ -7,9 +7,11 @@ import os
 import keyboard
 import platform
 from ctypes import cast, POINTER
+import ctypes
 
 if platform.system() == "Windows":
     from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+    from ctypes import c_uint, c_ulonglong
 
 _volume_device = None
 
@@ -57,7 +59,8 @@ def click_func(last_click_time):
     if cfg.debug_mode:
         print(f"Time since last click: {current_time - last_click_time:.2f} seconds")
     if current_time - last_click_time > 1:
-        pyautogui.click()  
+        pyautogui.click()
+        return current_time
     return last_click_time
     
 def right_click_func(last_click_time):
@@ -65,33 +68,74 @@ def right_click_func(last_click_time):
     if cfg.debug_mode:
         print(f"Time since last right click: {current_time - last_click_time:.2f} seconds")
     if current_time - last_click_time > 1:
-        pyautogui.rightClick()  
+        pyautogui.rightClick()
+        return current_time
     return last_click_time
 
-def next_song():
+def next_song(last_click_time=None):
+    if last_click_time is None:
+        last_click_time = time.time()
+    current_time = time.time()
     if cfg.debug_mode:
         print("next_song")
-    if platform.system() == "Windows":
-        keyboard.press_and_release('media next')
+    if current_time - last_click_time > 0.5:
+        if platform.system() == "Windows":
+            try:
+                # Send media next key using Windows API
+                ctypes.windll.user32.keybd_event(176, 0, 0, 0)
+                time.sleep(0.05)
+                ctypes.windll.user32.keybd_event(176, 0, 2, 0)
+            except Exception as e:
+                if cfg.debug_mode:
+                    print(f"next_song error: {e}")
+        return current_time
+    return last_click_time
 
-def previous_song():
+def previous_song(last_click_time=None):
+    if last_click_time is None:
+        last_click_time = time.time()
+    current_time = time.time()
     if cfg.debug_mode:
         print("previous_song")
-    if platform.system() == "Windows":
-        keyboard.press_and_release('media previous')
+    if current_time - last_click_time > 0.5:
+        if platform.system() == "Windows":
+            try:
+                # Send media previous key using Windows API
+                ctypes.windll.user32.keybd_event(177, 0, 0, 0)
+                time.sleep(0.05)
+                ctypes.windll.user32.keybd_event(177, 0, 2, 0)
+            except Exception as e:
+                if cfg.debug_mode:
+                    print(f"previous_song error: {e}")
+        return current_time
+    return last_click_time
 
-def play_pause_music():
+def play_pause_music(last_click_time=None):
+    if last_click_time is None:
+        last_click_time = time.time()
+    current_time = time.time()
     if cfg.debug_mode:
         print("play_pause_music")
-    if platform.system() == "Windows":
-        keyboard.press_and_release('media play/pause')
+    if current_time - last_click_time > 0.5:
+        if platform.system() == "Windows":
+            try:
+                # Send media play/pause key using Windows API
+                ctypes.windll.user32.keybd_event(179, 0, 0, 0)
+                time.sleep(0.05)
+                ctypes.windll.user32.keybd_event(179, 0, 2, 0)
+            except Exception as e:
+                if cfg.debug_mode:
+                    print(f"play_pause_music error: {e}")
+        return current_time
+    return last_click_time
 
 def double_click_func(last_click_time):
     current_time = time.time()
     if cfg.debug_mode:
         print(f"Time since last double click: {current_time - last_click_time:.2f} seconds")
     if current_time - last_click_time > 1:
-        pyautogui.doubleClick()  
+        pyautogui.doubleClick()
+        return current_time
     return last_click_time
 
 def minimize_window():
@@ -224,11 +268,20 @@ def record_key_press(timeout=10):
             print(f"record_key_press error: {e}")
         return None
 
-def press_custom_key(key_name):
+def press_custom_key(key_name, last_click_time=None):
+    if last_click_time is None:
+        last_click_time = time.time()
+    
+    current_time = time.time()
     if cfg.debug_mode:
         print(f"press_custom_key: Naciskanie {key_name}")
-    try:
-        keyboard.press_and_release(key_name)
-    except Exception as e:
-        if cfg.debug_mode:
-            print(f"press_custom_key error: {e}")
+    
+    if current_time - last_click_time > 1:
+        try:
+            keyboard.press_and_release(key_name)
+            return current_time
+        except Exception as e:
+            if cfg.debug_mode:
+                print(f"press_custom_key error: {e}")
+            return last_click_time
+    return last_click_time

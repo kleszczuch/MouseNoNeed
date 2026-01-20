@@ -8,14 +8,14 @@
                 "Closed_Fist": "click_func",
                 "Open_Palm": "None",
                 "Pointing_Up": "None",
-                "Victory": "None",
+                "Victory": "next_song",
                 "Thumb_Down": "None",
-                "Thumb_Up": "None",
+                "Thumb_Up": "play_pause_music",
                 "ILoveYou": "None",
                 "Thumb+Index": "None",
-                "Thumb+Middle": "None",
+                "Thumb+Middle": "custom_hotkey:enter",
                 "Thumb+Ring": "None",
-                "Thumb+Pinky": "None"
+                "Thumb+Pinky": "next_song"
             }
         ]
     },
@@ -32,10 +32,10 @@
                 "Thumb_Down": "volume_down",
                 "Thumb_Up": "volume_up",
                 "ILoveYou": "toggle_mute",
-                "Thumb+Index": "custom_hotkey:test",
-                "Thumb+Middle": "None",
-                "Thumb+Ring": "maximize_window",
-                "Thumb+Pinky": "minimize_window"
+                "Thumb+Index": "None",
+                "Thumb+Middle": "custom_hotkey:left",
+                "Thumb+Ring": "None",
+                "Thumb+Pinky": "None"
             }
         ]
     }

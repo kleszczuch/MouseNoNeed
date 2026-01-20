@@ -54,6 +54,9 @@ def call_function(func_name):
     if func_name == "click_func":
         cfg.last_click_time = click_func(cfg.last_click_time)
         return False
+    elif func_name == "right_click_func":
+        cfg.last_click_time = right_click_func(cfg.last_click_time)
+        return False
     elif func_name == "apply_boost":
         apply_speed_boost()
         return True
@@ -79,13 +82,13 @@ def call_function(func_name):
         open_on_screen_keyboard()
         return False
     elif func_name == "next_song":
-        next_song()
+        cfg.last_click_time = next_song(cfg.last_click_time)
         return False
     elif func_name == "previous_song":
-        previous_song()
+        cfg.last_click_time = previous_song(cfg.last_click_time)
         return False
     elif func_name == "play_pause_music":
-        play_pause_music()
+        cfg.last_click_time = play_pause_music(cfg.last_click_time)
         return False
     elif func_name.startswith("custom_hotkey:"):
         # custom_hotkey:hotkey_name
@@ -103,7 +106,7 @@ def register_or_execute_custom_hotkey(hotkey_name):
         key = cfg.custom_hotkeys[hotkey_name]
         if cfg.debug_mode:
             print(f"Wykonywanie zarejestrowanego hotkey '{hotkey_name}': {key}")
-        press_custom_key(key)
+        cfg.last_click_time = press_custom_key(key, cfg.last_click_time)
     else:
         # Klawisz nie jest zarejestrowany
         if cfg.debug_mode:

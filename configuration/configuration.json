@@ -8,7 +8,7 @@
     "speed_boost_active": false,
     "camera_width_default": 1920,
     "camera_height_default": 1080,
-    "camera_width_crop": 800,
+    "camera_width_crop": 640,
     "camera_height_crop": 480,
     "last_click_time": 0.0,
     "camera_index": 0,
@@ -16,6 +16,8 @@
     "thickness": 2,
     "debug_mode": false,
     "custom_hotkeys": {
-
+        "test": "ctrl",
+        "enter": "enter",
+        "left": "left"
     }
 }
