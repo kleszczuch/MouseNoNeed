@@ -107,9 +107,7 @@ def previous_song(last_click_time=None):
             except Exception as e:
                 if cfg.debug_mode:
                     print(f"previous_song error: {e}")
-        return
-      
-        current_time
+        return current_time
     return last_click_time
 
 def play_pause_music(last_click_time=None):
@@ -253,7 +251,7 @@ def open_on_screen_keyboard():
 
 def record_key_press(timeout=10):
     if cfg.debug_mode:
-        print(f"record_key_press: Oczekiwanie na naciśnięcie klawisza... (timeout: {timeout}s)")
+        print(f"record_key_press: Waiting for key press... (timeout: {timeout}s)")
     
     if platform.system() != "Windows":
         if cfg.debug_mode:
@@ -263,7 +261,7 @@ def record_key_press(timeout=10):
     try:
         key = keyboard.read_key(suppress=False)
         if cfg.debug_mode:
-            print(f"record_key_press: Zarejestrowany klawisz: {key}")
+            print(f"record_key_press: Key recorded: {key}")
         return key
     except Exception as e:
         if cfg.debug_mode:
@@ -276,7 +274,7 @@ def press_custom_key(key_name, last_click_time=None):
     
     current_time = time.time()
     if cfg.debug_mode:
-        print(f"press_custom_key: Naciskanie {key_name}")
+        print(f"press_custom_key: Pressing {key_name}")
     
     if current_time - last_click_time > 1:
         try:
