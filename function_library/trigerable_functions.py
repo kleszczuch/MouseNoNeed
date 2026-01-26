@@ -138,35 +138,47 @@ def double_click_func(last_click_time):
         return current_time
     return last_click_time
 
-def minimize_window():
+def minimize_window(last_click_time):
+    current_time = time.time()
     if cfg.debug_mode:
         if platform.system() == "Windows":
-            print("minimize_window: sending Win+Down")
+            print(f"minimize_window: Time since last click: {current_time - last_click_time:.2f} seconds")
         else:
-            print("minimize_window: sending Cmd+M")
-    try:
-        if platform.system() == "Windows":
-            keyboard.press_and_release('win+down')
-        elif platform.system() == "Darwin":
-            keyboard.press_and_release('cmd+m')
-    except Exception as e:
-        if cfg.debug_mode:
-            print(f"minimize_window error: {e}")
+            print(f"minimize_window: Time since last click: {current_time - last_click_time:.2f} seconds")
+    if current_time - last_click_time > 1:
+        try:
+            pyautogui.click()
+            time.sleep(0.1)
+            if platform.system() == "Windows":
+                keyboard.press_and_release('win+down')
+            elif platform.system() == "Darwin":
+                keyboard.press_and_release('cmd+m')
+        except Exception as e:
+            if cfg.debug_mode:
+                print(f"minimize_window error: {e}")
+        return current_time
+    return last_click_time
 
-def maximize_window():
+def maximize_window(last_click_time):
+    current_time = time.time()
     if cfg.debug_mode:
         if platform.system() == "Windows":
-            print("maximize_window: sending Win+Up")
+            print(f"maximize_window: Time since last click: {current_time - last_click_time:.2f} seconds")
         else:
-            print("maximize_window: sending Cmd+Ctrl+F")
-    try:
-        if platform.system() == "Windows":
-            keyboard.press_and_release('win+up')
-        elif platform.system() == "Darwin":
-            keyboard.press_and_release('cmd+ctrl+f')
-    except Exception as e:
-        if cfg.debug_mode:
-            print(f"maximize_window error: {e}")
+            print(f"maximize_window: Time since last click: {current_time - last_click_time:.2f} seconds")
+    if current_time - last_click_time > 1:
+        try:
+            pyautogui.click()
+            time.sleep(0.1)
+            if platform.system() == "Windows":
+                keyboard.press_and_release('win+up')
+            elif platform.system() == "Darwin":
+                keyboard.press_and_release('cmd+ctrl+f')
+        except Exception as e:
+            if cfg.debug_mode:
+                print(f"maximize_window error: {e}")
+        return current_time
+    return last_click_time
 
 def update_scrolling(direction=1):
     global scroll_remainder

@@ -97,10 +97,10 @@ def call_function(func_name):
         cfg.last_click_time = double_click_func(cfg.last_click_time)
         return False
     elif func_name == "minimize_window":
-        minimize_window()
+        cfg.last_click_time = minimize_window(cfg.last_click_time)
         return False
     elif func_name == "maximize_window":
-        maximize_window()
+        cfg.last_click_time = maximize_window(cfg.last_click_time)
         return False
     elif func_name.startswith("custom_hotkey:"):
         hotkey_name = func_name.split(":", 1)[1]

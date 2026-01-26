@@ -122,7 +122,7 @@ if platform.system() == "Darwin" and IS_DARK_MODE:
     THEME["text_secondary"] = "#d0d0d0"
 
 GESTURE_NAMES = [
-    "pointer", "2 fingers: Up", "2 fingers: Down", "Closed_Fist", "Open_Palm",
+    "2 fingers: Up", "2 fingers: Down", "Closed_Fist", "Open_Palm",
     "Pointing_Up", "Thumb_Down", "Thumb_Up", "ILoveYou",
     "Thumb+Index", "Thumb+Middle", "Thumb+Ring", "Thumb+Pinky"
 ]
