@@ -1,24 +1,32 @@
-# Instrukcja obsługi aplikacji Mouse NoNeed
-Mouse NoNeed to aplikacja umożliwiająca sterowanie myszką komputera za pomocą gestów dłoni wykonywanych przed kamerą. Program śledzi ruchy ręki i rozpoznaje gesty, dzięki czemu nie musisz używać tradycyjnej myszki.
-## Wymagania
-- **Komputer** z systemem Windows / MacOS
-- **Sprawna** kamerka internetowa
-- **Dobre** oświetlenie dłoni
-- **Uruchomiona** aplikacja Mouse NoNeed
-## Jak korzystać z aplikacji
-- **Pokaż zamkniętą pięść**: Kliknięcie lewym przyciskiem myszki (jak zwykłe kliknięcie).
-- **Otwórz dłoń szeroko**: Kliknięcie prawym przyciskiem myszki (menu kontekstowe).
-- **Unieś kciuk w górę**: Przewiń stronę w górę.
-- **Opuść kciuk w dół**: Przewiń stronę w dół.
-- **Wskaż palcem wskazującym**: Przesuń kursor myszki (śledzi ruch palca we wszystkich kierunkach wskazywania).
-Trzymaj dłoń nieruchomo na chwilę, aby gest został wykryty. Jeśli coś nie działa, sprawdź oświetlenie i odległość od kamery.
-## Dostosowywanie Gestów i Ruchów w Interfejsie Aplikacji
-Aplikacja oferuje możliwość personalizacji gestów bezpośrednio w jej interfejsie użytkownika. Możesz zmienić przypisania ruchów do funkcji wedle swoich upodobań, na przykład przypisać inny gest do przewijania lub dodać nowe funkcje. Aby to zrobić:
-- **1.** Po prawej stronie programu znajdź zakładkę **Gestures**.
-- **2.** Naciśnij przycisk "Edit" przy geście który chcesz edytować, a następnie przypisz mu nową funkcję z dostępnych opcji.
-- **3.** Zapisz zmiany.
-Dzięki temu możesz dostosować aplikację do swoich potrzeb, czyniąc ją jeszcze bardziej wygodną i funkcjonalną pod własne preferencje.
-## Wskazówki i problemy
-- **Kamera nie pokazuje obrazu?** Upewnij się, że kamera jest włączona i nie jest używana przez inny program.
-- **Gesty nie działają tak jak powinny?** Spróbuj lepiej oświetlić dłoń lub zbliżyć się do kamery. Pamiętaj o korzystaniu z kamery na jednolitym tle.
-- **Program się zacina?** Zamknij inne aplikacje używające kamery i spróbuj jeszcze raz.
+# Mouse NoNeed App User Manual
+
+Mouse NoNeed is an application that allows you to control your computer mouse using hand gestures performed in front of a camera. The program tracks hand movements and recognizes gestures, so you don't have to use a traditional mouse.
+
+## Requirements
+- **Computer** running Windows / MacOS
+- **Functional** webcam
+- **Good** lighting for your hand
+- **Running** Mouse NoNeed application
+
+## How to Use the App
+- **Show a closed fist**: Left mouse click (like a normal click).
+- **Open hand wide**: Right mouse click (context menu).
+- **Raise thumb up**: Scroll page up.
+- **Lower thumb down**: Scroll page down.
+- **Point with index finger**: Move mouse cursor (tracks finger movement in all pointing directions).
+
+> **Note:** Hold your hand still for a moment for the gesture to be detected. If something isn't working, check the lighting and distance from the camera.
+
+## Customizing Gestures and Movements in the App Interface
+The application offers the ability to personalize gestures directly in its user interface. You can change movement assignments to functions according to your preferences (e.g., assign a different gesture to scrolling).
+
+1. On the right side of the program, find the **Gestures** tab.
+2. Press the **"Edit"** button next to the gesture you want to edit, then assign it a new function from the available options.
+3. Save changes.
+
+This allows you to tailor the app to your needs, making it even more comfortable and functional for your own preferences.
+
+## Tips and Troubleshooting
+- **Camera not showing image?** Make sure the camera is turned on and not being used by another program.
+- **Gestures not working as they should?** Try to light your hand better or move closer to the camera. Remember to use the camera against a uniform background.
+- **Program lagging?** Close other applications using the camera and try again.
